@@ -1,8 +1,9 @@
 import { useState } from "react";
+import { formatUnits } from "viem";
+import { AssetId } from "../assets/assets";
 import { useBalances } from "../balances/use-balances";
 import { useSwap } from "./use-swap";
-import { AssetId } from "../assets/assets";
-import { formatUnits } from "viem";
+import { TransactionStatusUI } from "../transaction-status/transaction-status-ui";
 
 export const Swap = () => {
   const balancesQuery = useBalances();
@@ -39,6 +40,15 @@ const SwapForm = ({
     amountAsBigInt = BigInt(amount);
   } catch {
     amountAsBigInt = BigInt(0);
+  }
+
+  if (mutation.status === "success") {
+    return (
+      <TransactionStatusUI
+        quoteId={mutation.data.quoteId}
+        onReset={mutation.reset}
+      />
+    );
   }
 
   return (
