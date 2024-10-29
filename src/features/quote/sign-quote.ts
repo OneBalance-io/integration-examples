@@ -1,5 +1,13 @@
-import { Hex, TypedData } from "viem";
+import {
+  Address,
+  createWalletClient,
+  custom,
+  Hash,
+  Hex,
+  TypedData,
+} from "viem";
 import { ChainOperation, Quote } from "./quote";
+import { ConnectedWallet } from "@privy-io/react-auth";
 
 export const signQuoteWithSigner = (
   signTypedData: (_: { typedData: TypedData }) => Promise<Hex>
@@ -33,7 +41,29 @@ export const signQuoteWithSigner = (
   };
 };
 
-export const signQuoteWithPrivySigner = (
+const signTypedDataWithPrivy =
+  (embeddedWallet: ConnectedWallet) =>
+  async (typedData: any): Promise<Hash> => {
+    const provider = await embeddedWallet.getEthereumProvider();
+    const walletClient = createWalletClient({
+      transport: custom(provider),
+      account: embeddedWallet.address as Address,
+    });
+
+    return walletClient.signTypedData(typedData);
+  };
+
+export const signQuoteWithPrivySignerProvider = (
+  embeddedWallet: ConnectedWallet
+) =>
+  signQuoteWithSigner(({ typedData }) =>
+    signTypedDataWithPrivy(embeddedWallet)(typedData)
+  );
+
+/**
+ * @deprecated prefer using `signQuoteWithPrivySignerProvider` instead
+ */
+export const signQuoteWithPrivySignerHook = (
   signTypedDataWithPrivy: (typedData: any) => Promise<string>
 ) =>
   signQuoteWithSigner(({ typedData }) =>

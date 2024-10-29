@@ -8,9 +8,8 @@ import {
   useEmbeddedWallet,
   useOneBalanceAccountAddress,
 } from "../onebalance-account/use-onebalance-account";
-import { useAsyncSignTypedData } from "../privy/use-async-sign-message";
 import { executeQuote } from "../quote/execute-quote";
-import { signQuoteWithPrivySigner } from "../quote/sign-quote";
+import { signQuoteWithPrivySignerProvider } from "../quote/sign-quote";
 import { fetchSwapQuote, SwapRequest } from "./fetch-swap-quote";
 
 export const useSwap = () => {
@@ -48,16 +47,21 @@ export const useSwap = () => {
 };
 
 const useSwapMutation = () => {
-  const { signTypedDataAsync } = useAsyncSignTypedData();
+  const embeddedWallet = useEmbeddedWallet();
 
   return useMutation({
     mutationFn: async (request: SwapRequest) => {
+      if (!embeddedWallet) throw new Error("No embedded wallet found");
+
       const quote = await fetchSwapQuote(request);
-      const signedQuote = await signQuoteWithPrivySigner(signTypedDataAsync)(
-        quote
-      );
+      const signedQuote = await signQuoteWithPrivySignerProvider(
+        embeddedWallet
+      )(quote);
       const executionResult = await executeQuote(signedQuote);
-      return executionResult;
+      return {
+        result: executionResult,
+        quoteId: quote.id,
+      };
     },
   });
 };

@@ -9,7 +9,7 @@ import {
 } from "../onebalance-account/use-onebalance-account";
 import { useAsyncSignTypedData } from "../privy/use-async-sign-message";
 import { executeQuote } from "../quote/execute-quote";
-import { signQuoteWithPrivySigner } from "../quote/sign-quote";
+import { signQuoteWithPrivySignerHook } from "../quote/sign-quote";
 import { fetchTransferQuote, TransferRequest } from "./fetch-transfer-quote";
 import { AccountId } from "caip";
 
@@ -63,9 +63,9 @@ const useTransferMutation = () => {
   return useMutation({
     mutationFn: async (request: TransferRequest) => {
       const quote = await fetchTransferQuote(request);
-      const signedQuote = await signQuoteWithPrivySigner(signTypedDataAsync)(
-        quote
-      );
+      const signedQuote = await signQuoteWithPrivySignerHook(
+        signTypedDataAsync
+      )(quote);
       const executionResult = await executeQuote(signedQuote);
       return executionResult;
     },
