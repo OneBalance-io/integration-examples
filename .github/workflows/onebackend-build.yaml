@@ -37,12 +37,6 @@ jobs:
           fi
           echo "DOCKER_TAG=$TAG_PREFIX$GCP_REPO:latest" >> $GITHUB_ENV
 
-      - name: Create docker tag for ${GITHUB_REF#refs/*/}
-        run: |
-          if [[ -n $DOCKER_TAG ]]; then
-            TAG_PREFIX="$DOCKER_TAG,"
-          fi
-          echo "DOCKER_TAG=$TAG_PREFIX$GCP_REPO:${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
 
       - name: Build and push
         uses: docker/build-push-action@v6
