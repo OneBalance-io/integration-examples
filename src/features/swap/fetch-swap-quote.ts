@@ -1,4 +1,5 @@
 import { Address } from "viem";
+import { getRuntimeConfig } from "../../get-config";
 import { AssetId } from "../assets/assets";
 import { Quote } from "../quote/quote";
 
@@ -15,17 +16,15 @@ export interface SwapRequest {
 }
 
 export const fetchSwapQuote = (swapRequest: SwapRequest): Promise<Quote> => {
-  const url = new URL(
-    "/api/quotes/swap-quote",
-    import.meta.env.VITE_ONEBALANCE_API
-  );
+  const config = getRuntimeConfig();
+  const url = new URL("/api/quotes/swap-quote", config.VITE_ONEBALANCE_API);
 
   return fetch(url, {
     method: "post",
     body: JSON.stringify(swapRequest),
     headers: {
       "Content-Type": "application/json",
-      "x-api-key": import.meta.env.VITE_ONEBALANCE_API_KEY,
+      "x-api-key": config.VITE_ONEBALANCE_API_KEY,
     },
   }).then(async (response) => {
     if (!response.ok) throw await response.json();

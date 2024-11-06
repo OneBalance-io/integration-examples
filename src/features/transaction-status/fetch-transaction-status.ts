@@ -1,3 +1,4 @@
+import { getRuntimeConfig } from "../../get-config";
 import { TransactionStatus } from "./transaction-status";
 
 export const fetchTransactionStatus = async ({
@@ -5,16 +6,17 @@ export const fetchTransactionStatus = async ({
 }: {
   quoteId: string;
 }): Promise<TransactionStatus> => {
+  const config = getRuntimeConfig();
   const params = new URLSearchParams();
   params.set("quoteId", quoteId);
   const url = new URL(
     `/api/status/get-execution-status?${params}`,
-    import.meta.env.VITE_ONEBALANCE_API
+    config.VITE_ONEBALANCE_API
   );
 
   return fetch(url, {
     headers: {
-      "x-api-key": import.meta.env.VITE_ONEBALANCE_API_KEY,
+      "x-api-key": config.VITE_ONEBALANCE_API_KEY,
     },
   })
     .then(async (response) => {

@@ -1,6 +1,6 @@
 import { Address } from "viem";
-import { Quote } from "../quote/quote";
 import { getRuntimeConfig } from "../../get-config";
+import { Quote } from "../quote/quote";
 
 export interface TransferRequest {
   account: {
@@ -13,11 +13,10 @@ export interface TransferRequest {
   recipientAccountId: string;
 }
 
-const config = getRuntimeConfig();
-
 export const fetchTransferQuote = (
   transferRequest: TransferRequest
 ): Promise<Quote> => {
+  const config = getRuntimeConfig();
   const url = new URL("/api/quotes/transfer-quote", config.VITE_ONEBALANCE_API);
 
   return fetch(url, {

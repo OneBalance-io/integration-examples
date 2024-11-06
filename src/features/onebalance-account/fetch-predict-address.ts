@@ -1,4 +1,5 @@
 import { Address } from "viem";
+import { getRuntimeConfig } from "../../get-config";
 
 interface PredictAddressRequest {
   sessionAddress: Address;
@@ -10,9 +11,10 @@ export const fetchPredictAddress = (
 ): Promise<{
   predictedAddress: Address;
 }> => {
+  const config = getRuntimeConfig();
   const url = new URL(
     "/api/account/predict-address",
-    import.meta.env.VITE_ONEBALANCE_API
+    config.VITE_ONEBALANCE_API
   );
 
   return fetch(url, {
@@ -22,7 +24,7 @@ export const fetchPredictAddress = (
       adminAddress: addressRequest.adminAddress,
     }),
     headers: {
-      "x-api-key": import.meta.env.VITE_ONEBALANCE_API_KEY,
+      "x-api-key": config.VITE_ONEBALANCE_API_KEY,
       "Content-Type": "application/json",
     },
   }).then(async (response) => {
