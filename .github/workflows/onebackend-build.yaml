@@ -1,0 +1,23 @@
+name: Build integrations-examples docker service
+
+on:
+  pull_request: #TODO: remove, only used for testing
+  push:
+    tags:
+      - '**'
+
+jobs:
+  build-onetoken-bundler:
+    uses: OneBalance-io/infra-iac/.github/workflows/reuse-docker-build.yaml@main
+    with:
+      runner: onebalance-runner
+      config_creds: false
+      gcp_region: europe-west2
+      gcp_project_id: tooling0x
+      gcp_repo_name: onebalance/onebackend/integration-examples
+      default_branch: main
+      create_latest_dtag: false #TODO: change, only used for testing
+      create_git_ref_dtag: false #TODO: change, only used for testing
+      create_commit_hash_dtag: false
+      create_pr_dtag: true #TODO: remove, change used for testing
+    secrets: inherit

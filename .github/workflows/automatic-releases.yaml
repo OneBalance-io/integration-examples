@@ -1,0 +1,15 @@
+name: Automatic integration-examples Release
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  github-release:
+    uses: OneBalance-io/infra-iac/.github/workflows/reuse-auto-releases.yaml@main
+    with:
+      default_bump: patch
+      runner: onebalance-runner
+    secrets:
+      envPat: ${{ secrets.CI_PAT_TOKEN }}
