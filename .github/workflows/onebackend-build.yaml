@@ -7,7 +7,7 @@ on:
       - '**'
 
 jobs:
-  build-onetoken-bundler:
+  build-integrations-examples:
     uses: OneBalance-io/infra-iac/.github/workflows/reuse-docker-build.yaml@main
     with:
       runner: onebalance-runner
