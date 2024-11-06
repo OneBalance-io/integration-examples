@@ -6,18 +6,49 @@ on:
     tags:
       - '**'
 
+env:
+  GCP_REPO: europe-west2-docker.pkg.dev/tooling0x/onebalance/onebackend/integration-examples
+
 jobs:
   build-integrations-examples:
-    uses: OneBalance-io/infra-iac/.github/workflows/reuse-docker-build.yaml@main
-    with:
-      runner: onebalance-runner
-      config_creds: false
-      gcp_region: europe-west2
-      gcp_project_id: tooling0x
-      gcp_repo_name: onebalance/onebackend/integration-examples
-      default_branch: main
-      create_latest_dtag: false #TODO: change, only used for testing
-      create_git_ref_dtag: false #TODO: change, only used for testing
-      create_commit_hash_dtag: false
-      create_pr_dtag: true #TODO: remove, change used for testing
-    secrets: inherit
+    runs-on: onebalance-runner
+    timeout-minutes: 90
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: '0'
+
+      - name: "Set up Cloud SDK"
+        uses: "google-github-actions/setup-gcloud@v2"
+
+      - name: "configure GCP docker registry"
+        run: |
+          gcloud auth configure-docker europe-west2-docker.pkg.dev
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Create latest tag
+        run: |
+          if [[ -n $DOCKER_TAG ]]; then
+            TAG_PREFIX="$DOCKER_TAG,"
+          fi
+          echo "DOCKER_TAG=$TAG_PREFIX$GCP_REPO:latest" >> $GITHUB_ENV
+
+      - name: Create docker tag for ${GITHUB_REF#refs/*/}
+        run: |
+          if [[ -n $DOCKER_TAG ]]; then
+            TAG_PREFIX="$DOCKER_TAG,"
+          fi
+          echo "DOCKER_TAG=$TAG_PREFIX$GCP_REPO:${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: Dockerfile
+          push: true
+          tags: ${{ env.DOCKER_TAG }}
+          provenance: false
