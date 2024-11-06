@@ -59,13 +59,3 @@ export const signQuoteWithPrivySignerProvider = (
   signQuoteWithSigner(({ typedData }) =>
     signTypedDataWithPrivy(embeddedWallet)(typedData)
   );
-
-/**
- * @deprecated prefer using `signQuoteWithPrivySignerProvider` instead
- */
-export const signQuoteWithPrivySignerHook = (
-  signTypedDataWithPrivy: (typedData: any) => Promise<string>
-) =>
-  signQuoteWithSigner(({ typedData }) =>
-    signTypedDataWithPrivy(typedData).then((signature) => signature as Hex)
-  );

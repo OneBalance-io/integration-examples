@@ -1,4 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
+import { AccountId } from "caip";
 import { FormEvent } from "react";
 import { Address } from "viem";
 import { useBalances } from "../balances/use-balances";
@@ -7,11 +8,9 @@ import {
   useEmbeddedWallet,
   useOneBalanceAccountAddress,
 } from "../onebalance-account/use-onebalance-account";
-import { useAsyncSignTypedData } from "../privy/use-async-sign-message";
 import { executeQuote } from "../quote/execute-quote";
-import { signQuoteWithPrivySignerHook } from "../quote/sign-quote";
+import { signQuoteWithPrivySignerProvider } from "../quote/sign-quote";
 import { fetchTransferQuote, TransferRequest } from "./fetch-transfer-quote";
-import { AccountId } from "caip";
 
 export const useTransfer = () => {
   const balancesQuery = useBalances();
@@ -38,10 +37,6 @@ export const useTransfer = () => {
         address: payload.address as string,
       });
 
-      // TODO: remove hardcoding, once and if assetType is removed
-      const assetType =
-        "eip155:42161/erc20:0xaf88d065e77c8cC2239327C5EDb3A432268e5831";
-
       transferMutation.mutate({
         account: {
           accountAddress: oneBalanceAccountAddress.data.predictedAddress,
@@ -50,7 +45,7 @@ export const useTransfer = () => {
         },
         amount: payload.amount as string,
         recipientAccountId,
-        assetType,
+        aggregatedAssetId: payload.asset as string,
       });
     },
     mutation: transferMutation,
@@ -58,13 +53,15 @@ export const useTransfer = () => {
 };
 
 const useTransferMutation = () => {
-  const { signTypedDataAsync } = useAsyncSignTypedData();
+  const embeddedWallet = useEmbeddedWallet();
 
   return useMutation({
     mutationFn: async (request: TransferRequest) => {
+      if (!embeddedWallet) throw new Error("No embedded wallet found");
+
       const quote = await fetchTransferQuote(request);
-      const signedQuote = await signQuoteWithPrivySignerHook(
-        signTypedDataAsync
+      const signedQuote = await signQuoteWithPrivySignerProvider(
+        embeddedWallet
       )(quote);
       const executionResult = await executeQuote(signedQuote);
       return executionResult;

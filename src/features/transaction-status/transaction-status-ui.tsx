@@ -39,8 +39,10 @@ export const TransactionStatusUI = ({
             <ul>
               {transactionStatusQuery.data.originChainOperations.map(
                 (operation) => (
-                  <li key={operation}>
-                    <code>{operation}</code>
+                  <li key={operation.hash}>
+                    <a href={operation.explorerUrl} target="_blank">
+                      <code>{operation.hash}</code>
+                    </a>
                   </li>
                 )
               )}
@@ -55,8 +57,10 @@ export const TransactionStatusUI = ({
             <ul>
               {transactionStatusQuery.data.destinationChainOperations.map(
                 (operation) => (
-                  <li key={operation}>
-                    <code>{operation}</code>
+                  <li key={operation.hash}>
+                    <a href={operation.explorerUrl} target="_blank">
+                      <code>{operation.hash}</code>
+                    </a>
                   </li>
                 )
               )}

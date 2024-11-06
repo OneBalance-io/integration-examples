@@ -7,8 +7,16 @@ export type TransactionStatus =
       status: string;
       user: Address;
       recipientAccountId: string;
-      originChainOperations: string[];
-      destinationChainOperations: string[];
+      originChainOperations: {
+        hash: string;
+        chainId: number;
+        explorerUrl: string;
+      }[];
+      destinationChainOperations: {
+        hash: string;
+        chainId: number;
+        explorerUrl: string;
+      }[];
     }
   | {
       _tag: "Empty";

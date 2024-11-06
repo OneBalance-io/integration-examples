@@ -8,6 +8,7 @@ import { Swap } from "./features/swap/swap-ui";
 import { TabTrigger } from "./features/tabs/tab";
 import { Header } from "./features/ui/header";
 import { Login } from "./features/ui/login";
+import { Transfer } from "./features/transfer/transfer-ui";
 
 export function App() {
   const { authenticated, login, logout, ready, user } = usePrivy();
@@ -38,8 +39,7 @@ export function App() {
                 <Tabs.List>
                   <TabTrigger value="balances">Balances</TabTrigger>
                   <TabTrigger value="swap">Swap</TabTrigger>
-                  {/* WIP */}
-                  {/* <TabTrigger value="transfer">Transfer</TabTrigger> */}
+                  <TabTrigger value="transfer">Transfer</TabTrigger>
                 </Tabs.List>
                 <div className="mt-4">
                   <Tabs.Content value="balances">
@@ -48,10 +48,9 @@ export function App() {
                   <Tabs.Content value="swap">
                     <Swap />
                   </Tabs.Content>
-                  {/* WIP */}
-                  {/* <Tabs.Content value="transfer">
+                  <Tabs.Content value="transfer">
                     <Transfer />
-                  </Tabs.Content> */}
+                  </Tabs.Content>
                 </div>
               </Tabs.Root>
             </OneBalanceAccountRequired>
