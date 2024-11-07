@@ -12,4 +12,4 @@ RUN pnpm run build
 
 EXPOSE 4173
 
-CMD [ "pnpm", "preview" ]
+CMD [ "pnpm", "preview", "--host" ]
