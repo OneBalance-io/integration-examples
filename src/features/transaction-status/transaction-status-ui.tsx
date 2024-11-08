@@ -20,7 +20,7 @@ export const TransactionStatusUI = ({
   }
 
   if (transactionStatusQuery.data._tag === "Empty") {
-    return <p>No transaction status found</p>;
+    return <p>No transaction status found yet. Waiting...</p>;
   }
 
   return (

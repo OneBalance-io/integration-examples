@@ -64,7 +64,10 @@ const useTransferMutation = () => {
         embeddedWallet
       )(quote);
       const executionResult = await executeQuote(signedQuote);
-      return executionResult;
+      return {
+        result: executionResult,
+        quoteId: quote.id,
+      };
     },
   });
 };

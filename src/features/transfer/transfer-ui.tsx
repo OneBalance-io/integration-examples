@@ -4,6 +4,7 @@ import { useState } from "react";
 import { AssetId } from "../assets/assets";
 import { useTransfer } from "./use-transfer";
 import { useSupportedChains } from "../chain/use-supported-chains";
+import { TransactionStatusUI } from "../transaction-status/transaction-status-ui";
 
 export const Transfer = () => {
   const balancesQuery = useBalances();
@@ -45,6 +46,15 @@ const TransferForm = ({
     amountAsBigInt = BigInt(amount);
   } catch {
     amountAsBigInt = BigInt(0);
+  }
+
+  if (mutation.status === "success") {
+    return (
+      <TransactionStatusUI
+        quoteId={mutation.data.quoteId}
+        onReset={mutation.reset}
+      />
+    );
   }
 
   return (
