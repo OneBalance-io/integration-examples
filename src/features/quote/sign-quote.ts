@@ -1,3 +1,4 @@
+import { ConnectedWallet } from "@privy-io/react-auth";
 import {
   Address,
   createWalletClient,
@@ -6,36 +7,36 @@ import {
   Hex,
   TypedData,
 } from "viem";
+import { sequentialPromises } from "../promise/promise-sequential";
 import { ChainOperation, Quote } from "./quote";
-import { ConnectedWallet } from "@privy-io/react-auth";
 
 export const signQuoteWithSigner = (
   signTypedData: (_: { typedData: TypedData }) => Promise<Hex>
 ) => {
-  const signOperation = async (
-    operation: ChainOperation
-  ): Promise<ChainOperation> => {
-    const signature = await signTypedData({
-      typedData: operation.typedDataToSign,
-    });
+  const signOperation =
+    (operation: ChainOperation): (() => Promise<ChainOperation>) =>
+    async () => {
+      const signature = await signTypedData({
+        typedData: operation.typedDataToSign,
+      });
 
-    return {
-      ...operation,
-      userOp: { ...operation.userOp, signature },
+      return {
+        ...operation,
+        userOp: { ...operation.userOp, signature },
+      };
     };
-  };
 
   return async (quote: Quote): Promise<Quote> => {
     const signedQuote = {
       ...quote,
     };
-    signedQuote.originChainsOperations = await Promise.all(
+    signedQuote.originChainsOperations = await sequentialPromises(
       quote.originChainsOperations.map(signOperation)
     );
     if (quote.destinationChainOperation) {
       signedQuote.destinationChainOperation = await signOperation(
         quote.destinationChainOperation
-      );
+      )();
     }
     return signedQuote;
   };

@@ -1,4 +1,4 @@
-import { Account, Hex, TypedData } from "viem";
+import { Address, Hex, TypedData } from "viem";
 import { AssetId } from "../assets/assets";
 
 interface SerializedUserOperation {
@@ -8,15 +8,28 @@ interface SerializedUserOperation {
 export interface ChainOperation {
   userOp: SerializedUserOperation;
   typedDataToSign: TypedData;
-  assetType: AssetId;
+  assetType: string;
   amount: string;
+}
+
+export interface QuoteToken {
+  aggregatedAssetId: AssetId;
+  assetType: string[];
+  amount: string;
+  minimumAmount: string;
 }
 
 export interface Quote {
   id: string;
-  account: Account;
+  account: {
+    accountAddress: Address;
+    sessionAddress: Address;
+    adminAddress: Address;
+  };
   originChainsOperations: ChainOperation[];
   destinationChainOperation?: ChainOperation;
+  originToken: QuoteToken;
+  destinationToken: QuoteToken;
   expirationTimestamp: string;
   tamperProofSignature: string;
 }
