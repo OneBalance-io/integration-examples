@@ -6,12 +6,15 @@ import { OneBalanceAccount } from "./features/onebalance-account/onebalance-acco
 import { OneBalanceAccountRequired } from "./features/onebalance-account/onebalance-account-required";
 import { Swap } from "./features/swap/swap-ui";
 import { TabTrigger } from "./features/tabs/tab";
+import { TransactionHistory } from "./features/transaction-history/transaction-history-ui";
+import { useTransactionHistory } from "./features/transaction-history/use-transaction-history";
+import { Transfer } from "./features/transfer/transfer-ui";
 import { Header } from "./features/ui/header";
 import { Login } from "./features/ui/login";
-import { Transfer } from "./features/transfer/transfer-ui";
 
 export function App() {
   const { authenticated, login, logout, ready, user } = usePrivy();
+  const transactionHistoryQuery = useTransactionHistory();
 
   if (!ready) return null;
 
@@ -40,6 +43,9 @@ export function App() {
                   <TabTrigger value="balances">Balances</TabTrigger>
                   <TabTrigger value="swap">Swap</TabTrigger>
                   <TabTrigger value="transfer">Transfer</TabTrigger>
+                  {transactionHistoryQuery.data?.length ? (
+                    <TabTrigger value="history">Transaction History</TabTrigger>
+                  ) : null}
                 </Tabs.List>
                 <div className="mt-4">
                   <Tabs.Content value="balances">
@@ -50,6 +56,9 @@ export function App() {
                   </Tabs.Content>
                   <Tabs.Content value="transfer">
                     <Transfer />
+                  </Tabs.Content>
+                  <Tabs.Content value="history">
+                    <TransactionHistory />
                   </Tabs.Content>
                 </div>
               </Tabs.Root>
