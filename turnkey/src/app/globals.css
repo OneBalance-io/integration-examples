@@ -1,0 +1,88 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+@layer base {
+  :root {
+    --primary-gray-100: #1a1a1a;
+    --primary-gray-200: #252525;
+    --primary-gray-300: 126 126 125;
+    --white: #ffffff;
+    --black: #000000;
+
+    --text-black: #111315;
+    --text-white: var(--white);
+    --gray: #6f767e;
+
+    --brand-orange: #ffab40;
+    --brand-orange-lighten-20: #febd66;
+    --brand-orange-foreground: var(--text-black);
+
+    --surface-level-1: #111315;
+    --surface-level-2: #1a1d1f;
+    --surface-level-3: #272b30;
+    --surface-level-4: #313639;
+    --surface-level-4-lighten-20: #5a5e60;
+
+    --swap-settings: 26 26 26;
+    --surface-border: 243 243 241;
+
+    --background: var(--surface-level-1);
+    --foreground: var(--white);
+
+    --card: var(--primary-gray-200);
+    --card-foreground: var(--white);
+
+    --popover: var(--surface-level-4);
+    --popover-foreground: var(--white);
+
+    --primary: var(--black);
+    --primary-foreground: var(--white);
+
+    --secondary: var(--white);
+    --secondary-foreground: var(--black);
+
+    --muted: var(--primary-gray-300);
+    --muted-foreground: var(--white);
+
+    --accent: var(--white);
+    --accent-foreground: var(--black);
+
+    --destructive: #bd5858;
+    --destructive-foreground: var(--white);
+
+    --notification-error: 189 88 88;
+    --notification-success: 89 154 112;
+
+    --border: var(--primary-gray-200);
+    --input: var(--primary-gray-300);
+
+    --ring: var(--white);
+
+    --radius-sm: 0.125rem;
+    --radius-md: 0.75rem;
+    --radius-lg: 1.25rem;
+
+    --modal: var(--surface-level-2);
+
+    font-size: 16px;
+  }
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-family: Arial, Helvetica, sans-serif;
+}
