@@ -14,10 +14,14 @@
     "@tanstack/react-query": "^5.62.16",
     "@turnkey/sdk-react": "^2.0.2",
     "@turnkey/sdk-server": "^1.7.1",
+    "@uidotdev/usehooks": "^2.4.1",
+    "bitcoinjs-lib": "^6.1.7",
     "caip": "^1.1.1",
+    "ecpair": "3.0.0-rc.0",
     "next": "15.1.4",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "tiny-secp256k1": "^2.2.3",
     "viem": "^2.17.1"
   },
   "devDependencies": {

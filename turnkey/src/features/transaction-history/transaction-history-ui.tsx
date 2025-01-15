@@ -1,3 +1,4 @@
+"use client";
 import { formatUnits } from "viem";
 import { useTransactionHistory } from "./use-transaction-history";
 

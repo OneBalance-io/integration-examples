@@ -1,3 +1,4 @@
+"use client";
 import { skipToken, useQuery } from "@tanstack/react-query";
 import { useOneBalanceAccountAddress } from "../onebalance-account/use-onebalance-account";
 import { fetchTransactionHistory } from "./fetch-transaction-history";

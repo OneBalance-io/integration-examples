@@ -12,6 +12,11 @@ import {
 import { executeQuote } from "../quote/execute-quote";
 import { signQuoteWithTurnkeySigner } from "../quote/sign-quote";
 import { fetchSwapQuote, SwapRequest } from "./fetch-swap-quote";
+import { useBTCAccount } from "../onebalance-account/use-btc-account";
+import { signPSBTWithTurnkey } from "../quote/sign-btc-quote";
+import { fetchSwapBTCQuote } from "./fetch-swap-btc-quote";
+import { TurnkeyPasskeyClient } from "../turnkey/use-turnkey-auth";
+import { executeBTCQuote } from "../quote/execute-btc-quote";
 
 export const useSwap = () => {
   const balancesQuery = useBalances();
@@ -30,6 +35,7 @@ export const useSwap = () => {
 
       const formData = new FormData(form);
       const payload = Object.fromEntries(formData.entries());
+
       // We suggest you validate the payload before sending it to the API.
       // Validation is outside of the scope of this demo.
       swapMutation.mutate({
@@ -48,24 +54,80 @@ export const useSwap = () => {
 };
 
 const useSwapMutation = () => {
+  const btcData = useBTCAccount();
   const embeddedWallet = useEmbeddedWallet();
   const { passkeyClient } = useTurnkey();
 
   return useMutation({
     mutationFn: async (request: SwapRequest) => {
-      if (!embeddedWallet) throw new Error("No embedded wallet found");
+      const isBTC = request.fromAggregatedAssetId === ("BTC" as any);
 
-      const quote = await fetchSwapQuote(request);
-      const signedQuote = await signQuoteWithTurnkeySigner(
-        passkeyClient!,
-        embeddedWallet.address as Address,
-        embeddedWallet.organizationId
-      )(quote);
-      const executionResult = await executeQuote(signedQuote);
-      return {
-        result: executionResult,
-        quoteId: quote.id,
-      };
+      if (isBTC) {
+        return btcSwap({
+          btcData,
+          passkeyClient: passkeyClient!,
+        })(request);
+      }
+
+      return evmSwap({
+        embeddedWallet,
+        passkeyClient: passkeyClient!,
+      })(request);
     },
   });
 };
+
+const evmSwap = ({
+  embeddedWallet,
+  passkeyClient,
+}: {
+  embeddedWallet: ReturnType<typeof useEmbeddedWallet>;
+  passkeyClient: TurnkeyPasskeyClient;
+}) => {
+  return async (request: SwapRequest) => {
+    if (!embeddedWallet) throw new Error("No embedded wallet found");
+
+    const quote = await fetchSwapQuote(request);
+    const signedQuote = await signQuoteWithTurnkeySigner(
+      passkeyClient!,
+      embeddedWallet.address as Address,
+      embeddedWallet.organizationId
+    )(quote);
+    const executionResult = await executeQuote(signedQuote);
+    return {
+      result: executionResult,
+      quoteId: quote.id,
+    };
+  };
+};
+
+const btcSwap =
+  ({
+    btcData,
+    passkeyClient,
+  }: {
+    btcData: ReturnType<typeof useBTCAccount>;
+    passkeyClient: TurnkeyPasskeyClient;
+  }) =>
+  async (request: SwapRequest) => {
+    const [btcWallet, btcAddress] = btcData;
+    if (btcWallet._tag === "NoWallet") throw new Error("No BTC wallet found");
+    if (!btcAddress) throw new Error("No BTC address");
+
+    const quote = await fetchSwapBTCQuote(request);
+    const signature = await signPSBTWithTurnkey({
+      walletAddress: btcAddress.address,
+      publicKey: btcAddress.publicKey,
+      passkeyClient: passkeyClient!,
+      organizationId: btcWallet.btcWallet.organizationId,
+    })(quote.psbt);
+
+    const executionResult = await executeBTCQuote({
+      ...quote,
+      psbt: signature,
+    });
+    return {
+      result: executionResult,
+      quoteId: quote.id,
+    };
+  };

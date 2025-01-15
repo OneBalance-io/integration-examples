@@ -3,8 +3,9 @@ import { useState } from "react";
 import { formatUnits } from "viem";
 import { AssetId } from "../assets/assets";
 import { useBalances } from "../balances/use-balances";
-import { useSwap } from "./use-swap";
+import { useBTCAccount } from "../onebalance-account/use-btc-account";
 import { TransactionStatusUI } from "../transaction-status/transaction-status-ui";
+import { useSwap } from "./use-swap";
 
 export const Swap = () => {
   const balancesQuery = useBalances();
@@ -32,6 +33,7 @@ const SwapForm = ({
   const [fromAssetId, setFromAssetId] = useState<AssetId>(
     balances.assets[0].aggregatedAssetId
   );
+  const [btcAccount] = useBTCAccount();
   const [amount, setAmount] = useState<string>("");
   const fromAsset = balances.assets.find(
     (asset) => asset.aggregatedAssetId === fromAssetId
@@ -66,6 +68,10 @@ const SwapForm = ({
           className="px-4 py-3 rounded-xl bg-surface-level-3 h-14"
           onChange={(event) => setFromAssetId(event.target.value as AssetId)}
         >
+          {btcAccount._tag === "ExistingWallet" ? (
+            <option value="BTC">BTC</option>
+          ) : null}
+
           {balances.assets.map((asset) => {
             return (
               <option

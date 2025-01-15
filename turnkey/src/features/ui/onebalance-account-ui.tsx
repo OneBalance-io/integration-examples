@@ -1,3 +1,5 @@
+"use client";
+import { BTCWalletUI } from "../onebalance-account/create-btc-wallet-ui";
 import { useOneBalanceAccountAddress } from "../onebalance-account/use-onebalance-account";
 
 export const OneBalanceAccountUI = ({
@@ -24,6 +26,10 @@ export const OneBalanceAccountUI = ({
           </code>
         </p>
       ) : null}
+
+      <div className="mt-4">
+        <BTCWalletUI />
+      </div>
 
       {status === "error" ? (
         <>
