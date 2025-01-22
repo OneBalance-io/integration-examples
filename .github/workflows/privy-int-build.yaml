@@ -1,4 +1,4 @@
-name: Build integrations-examples docker service
+name: Build privy-int docker service
 
 on:
   push:
@@ -6,19 +6,13 @@ on:
       - "**"
 
 env:
-  GCP_REPO: europe-west2-docker.pkg.dev/tooling0x/onebalance/onebackend/integration-examples
+  GCP_REPO: europe-west2-docker.pkg.dev/tooling0x/onebalance/onebackend/privy-int
 
 jobs:
   build-integrations-examples:
     runs-on: onebalance-runner
-    timeout-minutes: 90
+    timeout-minutes: 30
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.pull_request.head.sha }}
-          fetch-depth: "0"
-
       - name: "Set up Cloud SDK"
         uses: "google-github-actions/setup-gcloud@v2"
 
@@ -46,7 +40,7 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v6
         with:
-          context: ./privy
+          context: "{{defaultContext}}:privy"
           file: Dockerfile
           push: true
           tags: ${{ env.DOCKER_TAG }}
