@@ -10,7 +10,8 @@ export interface SwapRequest {
   fromTokenAmount: string;
   fromAggregatedAssetId: AssetId;
   toAggregatedAssetId: AssetId;
-  recipientAccountId?: string;
+  recipientAccountId: string;
+  userAddress: string;
 }
 
 export const fetchSwapBTCQuote = (

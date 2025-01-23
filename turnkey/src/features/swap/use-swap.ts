@@ -114,7 +114,12 @@ const btcSwap =
     if (btcWallet._tag === "NoWallet") throw new Error("No BTC wallet found");
     if (!btcAddress) throw new Error("No BTC address");
 
-    const quote = await fetchSwapBTCQuote(request);
+    const quote = await fetchSwapBTCQuote({
+      ...request,
+      userAddress: btcAddress.address,
+      // TODO: Replace with the actual recipient account ID
+      recipientAccountId: "",
+    });
     const signature = await signPSBTWithTurnkey({
       walletAddress: btcAddress.address,
       publicKey: btcAddress.publicKey,
