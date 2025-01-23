@@ -34,6 +34,8 @@ export default function RootLayout({
     <html lang="en">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        data-rpid={process.env.NEXT_PUBLIC_TURNKEY_RP_ID}
+        data-orgid={process.env.NEXT_PUBLIC_TURNKEY_ORGANIZATION_ID}
       >
         <TurnkeyProvider
           config={{
