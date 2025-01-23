@@ -1,0 +1,83 @@
+name: Build turnkey-int docker service
+
+on:
+  #TODO: refactor "on" right after "turnkey" branch is merged to main
+  push:
+    #tags:
+    #  - "**"
+    branches:
+      - turnkey
+
+env:
+  GCP_REPO: europe-west2-docker.pkg.dev/tooling0x/onebalance/onebackend/turnkey-integration
+
+jobs:
+  build-turnkey-integration:
+    runs-on: onebalance-runner
+    timeout-minutes: 30
+    steps:
+      - name: "Set up Cloud SDK"
+        uses: "google-github-actions/setup-gcloud@v2"
+
+      - name: "configure GCP docker registry"
+        run: |
+          gcloud auth configure-docker europe-west2-docker.pkg.dev
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Create latest tag
+        run: |
+          if [[ -n $DOCKER_TAG ]]; then
+            TAG_PREFIX="$DOCKER_TAG,"
+          fi
+          echo "DOCKER_TAG=$TAG_PREFIX$GCP_REPO:latest" >> $GITHUB_ENV
+
+      #TODO: Remove step when "turnkey" branch is merged to main
+      - name: Create commit hash tag
+        run: |
+          if [[ -n $DOCKER_TAG ]]; then
+            TAG_PREFIX="$DOCKER_TAG,"
+          fi
+          echo "DOCKER_TAG=$TAG_PREFIX$GCP_REPO:${GITHUB_SHA::7}" >> $GITHUB_ENV         
+
+      #TODO: uncomment right after "turnkey" branch is merged to main
+      #- name: Create docker tag for ${GITHUB_REF#refs/*/}
+      #  run: |
+      #    if [[ -n $DOCKER_TAG ]]; then
+      #      TAG_PREFIX="$DOCKER_TAG,"
+      #    fi
+      #    echo "DOCKER_TAG=$TAG_PREFIX$GCP_REPO:${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: "{{defaultContext}}:turnkey"
+          file: Dockerfile
+          push: true
+          tags: ${{ env.DOCKER_TAG }}
+          provenance: false
+
+
+  #TODO: CHANGE THIS with argocd image updater
+  deploy-latest-dev:
+    runs-on: onebalance-runner
+    needs: build-turnkey-integration
+    steps:
+    - name: "Set up Cloud SDK"
+      uses: "google-github-actions/setup-gcloud@v2"
+
+    - name: "get-credentials"
+      uses: "google-github-actions/get-gke-credentials@v2"
+      with:
+        project_id: "development0x"
+        cluster_name: "dev"
+        location: "europe-west2"
+
+    - name: "restart onebackend turnkey int"
+      run: |
+        curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+        curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl.sha256"
+        echo "$(cat kubectl.sha256)  kubectl" | sha256sum --check
+        sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+        kubectl -n onebackend rollout restart deploy turnkey-int
