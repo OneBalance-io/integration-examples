@@ -18,10 +18,12 @@ export const metadata: Metadata = {
   title: "Turnkey integration example",
 };
 
-if (!process.env.NEXT_PUBLIC_TURNKEY_ORGANIZATION_ID)
-  throw new Error("NEXT_PUBLIC_TURNKEY_ORGANIZATION_ID is required");
-if (!process.env.NEXT_PUBLIC_TURNKEY_RP_ID)
-  throw new Error("NEXT_PUBLIC_TURNKEY_RP_ID is required");
+if (typeof window !== "undefined") {
+  if (!process.env.NEXT_PUBLIC_TURNKEY_ORGANIZATION_ID)
+    throw new Error("NEXT_PUBLIC_TURNKEY_ORGANIZATION_ID is required");
+  if (!process.env.NEXT_PUBLIC_TURNKEY_RP_ID)
+    throw new Error("NEXT_PUBLIC_TURNKEY_RP_ID is required");
+}
 
 export default function RootLayout({
   children,
