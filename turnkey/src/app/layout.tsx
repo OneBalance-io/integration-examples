@@ -18,13 +18,6 @@ export const metadata: Metadata = {
   title: "Turnkey integration example",
 };
 
-if (typeof window !== "undefined") {
-  if (!process.env.NEXT_PUBLIC_TURNKEY_ORGANIZATION_ID)
-    throw new Error("NEXT_PUBLIC_TURNKEY_ORGANIZATION_ID is required");
-  if (!process.env.NEXT_PUBLIC_TURNKEY_RP_ID)
-    throw new Error("NEXT_PUBLIC_TURNKEY_RP_ID is required");
-}
-
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -34,16 +27,13 @@ export default function RootLayout({
     <html lang="en">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-        data-rpid={process.env.NEXT_PUBLIC_TURNKEY_RP_ID}
-        data-orgid={process.env.NEXT_PUBLIC_TURNKEY_ORGANIZATION_ID}
       >
         <TurnkeyProvider
           config={{
-            rpId: process.env.NEXT_PUBLIC_TURNKEY_RP_ID,
+            rpId: process.env.PUBLIC_TURNKEY_RP_ID,
             apiBaseUrl: "https://api.turnkey.com",
             iframeUrl: "https://auth.turnkey.com",
-            defaultOrganizationId:
-              process.env.NEXT_PUBLIC_TURNKEY_ORGANIZATION_ID!,
+            defaultOrganizationId: process.env.PUBLIC_TURNKEY_ORGANIZATION_ID!,
           }}
         >
           <ReactQueryProvider>{children}</ReactQueryProvider>

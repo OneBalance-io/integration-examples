@@ -14,7 +14,7 @@ const turnkeyServer = new Turnkey({
   apiBaseUrl: "https://api.turnkey.com",
   apiPrivateKey: process.env.TURNKEY_API_PRIVATE_KEY,
   apiPublicKey: process.env.TURNKEY_API_PUBLIC_KEY,
-  defaultOrganizationId: process.env.NEXT_PUBLIC_TURNKEY_ORGANIZATION_ID!,
+  defaultOrganizationId: process.env.PUBLIC_TURNKEY_ORGANIZATION_ID!,
 }).apiClient();
 
 type TAttestation = {
