@@ -4,6 +4,8 @@ import "./globals.css";
 import { TurnkeyProvider } from "@turnkey/sdk-react";
 import { ReactQueryProvider } from "@/features/react-query";
 
+export const dynamic = "force-dynamic";
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
