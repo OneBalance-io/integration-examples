@@ -1,14 +1,17 @@
 import { Asset } from "./assets";
 
-export const fetchAssets = (): Promise<Asset[]> => {
-  const url = new URL(
-    `/api/assets/list`,
-    process.env.NEXT_PUBLIC_ONEBALANCE_API
-  );
+export const fetchAssets = ({
+  apiUrl,
+  apiKey,
+}: {
+  apiUrl: string;
+  apiKey: string;
+}): Promise<Asset[]> => {
+  const url = new URL(`/api/assets/list`, apiUrl);
 
   return fetch(url, {
     headers: {
-      "x-api-key": process.env.NEXT_PUBLIC_ONEBALANCE_API_KEY!,
+      "x-api-key": apiKey,
     },
   }).then(async (response) => {
     if (!response.ok) throw await response.json();

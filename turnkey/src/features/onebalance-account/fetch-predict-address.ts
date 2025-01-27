@@ -6,14 +6,18 @@ interface PredictAddressRequest {
 }
 
 export const fetchPredictAddress = (
-  addressRequest: PredictAddressRequest
+  addressRequest: PredictAddressRequest,
+  {
+    apiKey,
+    apiUrl,
+  }: {
+    apiKey: string;
+    apiUrl: string;
+  }
 ): Promise<{
   predictedAddress: Address;
 }> => {
-  const url = new URL(
-    "/api/account/predict-address",
-    process.env.NEXT_PUBLIC_ONEBALANCE_API
-  );
+  const url = new URL("/api/account/predict-address", apiUrl);
 
   return fetch(url, {
     method: "post",
@@ -22,7 +26,7 @@ export const fetchPredictAddress = (
       adminAddress: addressRequest.adminAddress,
     }),
     headers: {
-      "x-api-key": process.env.NEXT_PUBLIC_ONEBALANCE_API_KEY!,
+      "x-api-key": apiKey,
       "Content-Type": "application/json",
     },
   }).then(async (response) => {

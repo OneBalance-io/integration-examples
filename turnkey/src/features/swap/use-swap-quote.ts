@@ -7,6 +7,7 @@ import {
 } from "../onebalance-account/use-onebalance-account";
 import { Address } from "viem";
 import { AssetId } from "../assets/assets";
+import { useEnvironment } from "../environment/environment";
 
 export const useSwapQuote = ({
   isFormValid,
@@ -21,6 +22,7 @@ export const useSwapQuote = ({
 }) => {
   const oneBalanceAccountAddress = useOneBalanceAccountAddress();
   const embeddedWallet = useEmbeddedWallet();
+  const { apiKey, apiUrl } = useEnvironment();
 
   return useQuery({
     queryKey: ["swap-quote"],
@@ -37,7 +39,7 @@ export const useSwapQuote = ({
               fromAggregatedAssetId,
               toAggregatedAssetId,
             };
-            return fetchSwapQuote(request);
+            return fetchSwapQuote(request, { apiUrl, apiKey });
           }
         : skipToken,
   });

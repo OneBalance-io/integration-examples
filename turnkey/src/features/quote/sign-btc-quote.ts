@@ -57,8 +57,11 @@ export const signPSBTWithTurnkey =
     organizationId: string;
   }) =>
   async (psbtString: string) => {
+    console.log("cp1", psbtString, publicKey);
     const psbt = bitcoin.Psbt.fromHex(psbtString);
+    console.log("cp2", psbt);
     const pair = ECPair.fromPublicKey(Buffer.from(publicKey, "hex"));
+    console.log("cp3", pair);
 
     const signer = new TurnkeySigner(
       walletAddress,
@@ -73,6 +76,10 @@ export const signPSBTWithTurnkey =
     for (let i = 0; i < count; i++) {
       signPromises.push(psbt.signInputAsync(i, signer));
     }
+    console.log("direct 0", psbt.txInputs[0].hash);
+    console.log("direct 1", psbt.txInputs[1].hash);
+    console.log("direct 2", psbt.txInputs[2].hash);
+    console.log("direct 3", psbt.txInputs[3].hash);
     await Promise.all(signPromises);
 
     return psbt.finalizeAllInputs().extractTransaction().toHex();

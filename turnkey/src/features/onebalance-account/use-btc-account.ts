@@ -2,6 +2,7 @@ import { skipToken, useMutation, useQuery } from "@tanstack/react-query";
 import { useLocalStorage } from "@uidotdev/usehooks";
 import { createBTCWallet } from "./create-btc-wallet";
 import { fetchBTCWalletAddress } from "./fetch-btc-wallet-address";
+import { useEnvironment } from "../environment/environment";
 
 const usePersistedBTCWallet = () =>
   // persisting these values in local storage is not advisable.
@@ -22,14 +23,20 @@ const useCreateBTCAccount = ({
     address: string;
   }) => void;
 }) => {
+  const { apiKey, apiUrl } = useEnvironment();
+
   return useMutation({
-    mutationFn: createBTCWallet,
+    mutationFn: createBTCWallet({
+      apiUrl,
+      apiKey,
+    }),
     onSuccess,
   });
 };
 
 const useBTCWalletAddress = () => {
   const [btcWallet] = usePersistedBTCWallet();
+  const { apiKey, apiUrl } = useEnvironment();
 
   return useQuery({
     queryKey: [
@@ -40,10 +47,16 @@ const useBTCWalletAddress = () => {
     queryFn:
       btcWallet?.organizationId && btcWallet.walletId
         ? () => {
-            return fetchBTCWalletAddress({
-              walletId: btcWallet.walletId,
-              organizationId: btcWallet.organizationId,
-            });
+            return fetchBTCWalletAddress(
+              {
+                walletId: btcWallet.walletId,
+                organizationId: btcWallet.organizationId,
+              },
+              {
+                apiKey,
+                apiUrl,
+              }
+            );
           }
         : skipToken,
   });

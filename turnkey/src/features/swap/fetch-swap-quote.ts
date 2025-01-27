@@ -14,18 +14,24 @@ export interface SwapRequest {
   recipientAccountId?: string;
 }
 
-export const fetchSwapQuote = (swapRequest: SwapRequest): Promise<Quote> => {
-  const url = new URL(
-    "/api/quotes/swap-quote",
-    process.env.NEXT_PUBLIC_ONEBALANCE_API
-  );
+export const fetchSwapQuote = (
+  swapRequest: SwapRequest,
+  {
+    apiKey,
+    apiUrl,
+  }: {
+    apiKey: string;
+    apiUrl: string;
+  }
+): Promise<Quote> => {
+  const url = new URL("/api/quotes/swap-quote", apiUrl);
 
   return fetch(url, {
     method: "post",
     body: JSON.stringify(swapRequest),
     headers: {
       "Content-Type": "application/json",
-      "x-api-key": process.env.NEXT_PUBLIC_ONEBALANCE_API_KEY!,
+      "x-api-key": apiKey,
     },
   }).then(async (response) => {
     if (!response.ok) throw await response.json();

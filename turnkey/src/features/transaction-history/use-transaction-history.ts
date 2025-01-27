@@ -3,19 +3,26 @@ import { skipToken, useQuery } from "@tanstack/react-query";
 import { useOneBalanceAccountAddress } from "../onebalance-account/use-onebalance-account";
 import { fetchTransactionHistory } from "./fetch-transaction-history";
 import { fetchAssets } from "../assets/fetch-assets";
+import { useEnvironment } from "../environment/environment";
 
 export const useTransactionHistory = () => {
   const account = useOneBalanceAccountAddress();
+  const { apiUrl, apiKey } = useEnvironment();
 
   return useQuery({
-    queryKey: ["transaction-history"],
+    queryKey: ["transaction-history", apiUrl, apiKey],
     queryFn: account.data
       ? async () => {
           const [history, assets] = await Promise.all([
             fetchTransactionHistory({
               address: account.data.predictedAddress,
+              apiKey,
+              apiUrl,
             }),
-            fetchAssets(),
+            fetchAssets({
+              apiUrl,
+              apiKey,
+            }),
           ]);
 
           const assetsMap = new Map(

@@ -7,15 +7,18 @@ export interface Chain {
   isTestnet: boolean;
 }
 
-export const fetchSupportedChains = (): Promise<Chain[]> => {
-  const url = new URL(
-    "/api/chains/supported-list",
-    process.env.NEXT_PUBLIC_ONEBALANCE_API
-  );
+export const fetchSupportedChains = ({
+  apiKey,
+  apiUrl,
+}: {
+  apiKey: string;
+  apiUrl: string;
+}): Promise<Chain[]> => {
+  const url = new URL("/api/chains/supported-list", apiUrl);
 
   return fetch(url, {
     headers: {
-      "x-api-key": process.env.NEXT_PUBLIC_ONEBALANCE_API_KEY!,
+      "x-api-key": apiKey,
     },
   }).then(async (response) => {
     if (!response.ok) throw await response.json();

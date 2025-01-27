@@ -4,15 +4,19 @@ interface BTCWalletAddressRequest {
 }
 
 export const fetchBTCWalletAddress = (
-  addressRequest: BTCWalletAddressRequest
+  addressRequest: BTCWalletAddressRequest,
+  {
+    apiUrl,
+    apiKey,
+  }: {
+    apiUrl: string;
+    apiKey: string;
+  }
 ): Promise<{
   address: string;
   publicKey: string;
 }> => {
-  const url = new URL(
-    "/api/account/btc-wallet-address",
-    process.env.NEXT_PUBLIC_ONEBALANCE_API
-  );
+  const url = new URL("/api/account/btc-wallet-address", apiUrl);
 
   return fetch(url, {
     method: "post",
@@ -21,7 +25,7 @@ export const fetchBTCWalletAddress = (
       organizationId: addressRequest.organizationId,
     }),
     headers: {
-      "x-api-key": process.env.NEXT_PUBLIC_ONEBALANCE_API_KEY!,
+      "x-api-key": apiKey,
       "Content-Type": "application/json",
     },
   }).then(async (response) => {

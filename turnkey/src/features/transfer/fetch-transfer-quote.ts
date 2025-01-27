@@ -13,19 +13,23 @@ export interface TransferRequest {
 }
 
 export const fetchTransferQuote = (
-  transferRequest: TransferRequest
+  transferRequest: TransferRequest,
+  {
+    apiKey,
+    apiUrl,
+  }: {
+    apiKey: string;
+    apiUrl: string;
+  }
 ): Promise<Quote> => {
-  const url = new URL(
-    "/api/quotes/transfer-quote",
-    process.env.NEXT_PUBLIC_ONEBALANCE_API
-  );
+  const url = new URL("/api/quotes/transfer-quote", apiUrl);
 
   return fetch(url, {
     method: "post",
     body: JSON.stringify(transferRequest),
     headers: {
       "Content-Type": "application/json",
-      "x-api-key": process.env.NEXT_PUBLIC_ONEBALANCE_API_KEY!,
+      "x-api-key": apiKey,
     },
   }).then(async (response) => {
     if (!response.ok) throw await response.json();

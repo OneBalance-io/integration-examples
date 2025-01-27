@@ -1,17 +1,23 @@
 import { Quote } from "./quote";
 
-export const executeQuote = (quote: Quote) => {
-  const url = new URL(
-    "/api/quotes/execute-quote",
-    process.env.NEXT_PUBLIC_ONEBALANCE_API
-  );
+export const executeQuote = (
+  quote: Quote,
+  {
+    apiKey,
+    apiUrl,
+  }: {
+    apiKey: string;
+    apiUrl: string;
+  }
+) => {
+  const url = new URL("/api/quotes/execute-quote", apiUrl);
 
   return fetch(url, {
     method: "post",
     body: JSON.stringify(quote),
     headers: {
       "Content-Type": "application/json",
-      "x-api-key": process.env.NEXT_PUBLIC_ONEBALANCE_API_KEY!,
+      "x-api-key": apiKey,
     },
   })
     .then(async (response) => {

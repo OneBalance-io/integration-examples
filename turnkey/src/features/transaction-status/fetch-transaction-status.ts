@@ -2,19 +2,20 @@ import { TransactionStatus } from "./transaction-status";
 
 export const fetchTransactionStatus = async ({
   quoteId,
+  apiKey,
+  apiUrl,
 }: {
   quoteId: string;
+  apiKey: string;
+  apiUrl: string;
 }): Promise<TransactionStatus> => {
   const params = new URLSearchParams();
   params.set("quoteId", quoteId);
-  const url = new URL(
-    `/api/status/get-execution-status?${params}`,
-    process.env.NEXT_PUBLIC_ONEBALANCE_API
-  );
+  const url = new URL(`/api/status/get-execution-status?${params}`, apiUrl);
 
   return fetch(url, {
     headers: {
-      "x-api-key": process.env.NEXT_PUBLIC_ONEBALANCE_API_KEY!,
+      "x-api-key": apiKey,
     },
   })
     .then(async (response) => {

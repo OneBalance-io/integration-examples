@@ -3,6 +3,7 @@ import { skipToken, useQuery } from "@tanstack/react-query";
 import { Address } from "viem";
 import { useTurnkeyAuth } from "../turnkey/use-turnkey-auth";
 import { fetchPredictAddress } from "./fetch-predict-address";
+import { useEnvironment } from "../environment/environment";
 
 // below is a random ETH address, please change this as per your requirements.
 export const ADMIN_ADDRESS = "0xc162a3cE45ad151eeCd0a5532D6E489D034aB3B8";
@@ -29,6 +30,7 @@ const usePredictAddress = ({
   sessionKeyAddress: Address | undefined;
   adminKeyAddress: Address;
 }) => {
+  const { apiKey, apiUrl } = useEnvironment();
   return useQuery({
     queryKey: [
       "onebalance-account-address",
@@ -37,10 +39,16 @@ const usePredictAddress = ({
     ],
     queryFn: sessionKeyAddress
       ? () => {
-          return fetchPredictAddress({
-            sessionAddress: sessionKeyAddress,
-            adminAddress: adminKeyAddress,
-          });
+          return fetchPredictAddress(
+            {
+              sessionAddress: sessionKeyAddress,
+              adminAddress: adminKeyAddress,
+            },
+            {
+              apiUrl,
+              apiKey,
+            }
+          );
         }
       : skipToken,
   });

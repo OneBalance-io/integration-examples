@@ -12,6 +12,7 @@ import { executeQuote } from "../quote/execute-quote";
 import { signQuoteWithTurnkeySigner } from "../quote/sign-quote";
 import { fetchTransferQuote, TransferRequest } from "./fetch-transfer-quote";
 import { useTurnkey } from "@turnkey/sdk-react";
+import { useEnvironment } from "../environment/environment";
 
 export const useTransfer = () => {
   const balancesQuery = useBalances();
@@ -56,18 +57,25 @@ export const useTransfer = () => {
 const useTransferMutation = () => {
   const embeddedWallet = useEmbeddedWallet();
   const { passkeyClient } = useTurnkey();
+  const { apiKey, apiUrl } = useEnvironment();
 
   return useMutation({
     mutationFn: async (request: TransferRequest) => {
       if (!embeddedWallet) throw new Error("No embedded wallet found");
 
-      const quote = await fetchTransferQuote(request);
+      const quote = await fetchTransferQuote(request, {
+        apiKey,
+        apiUrl,
+      });
       const signedQuote = await signQuoteWithTurnkeySigner(
         passkeyClient!,
         embeddedWallet.address as Address,
         embeddedWallet.organizationId
       )(quote);
-      const executionResult = await executeQuote(signedQuote);
+      const executionResult = await executeQuote(signedQuote, {
+        apiKey,
+        apiUrl,
+      });
       return {
         result: executionResult,
         quoteId: quote.id,

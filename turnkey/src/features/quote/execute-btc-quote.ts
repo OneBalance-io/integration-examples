@@ -1,19 +1,25 @@
-export const executeBTCQuote = (quote: {
-  id: string;
-  userAddress: string;
-  psbt: string;
-}) => {
-  const url = new URL(
-    "/api/quotes/btc/execute-quote",
-    process.env.NEXT_PUBLIC_ONEBALANCE_API
-  );
+export const executeBTCQuote = (
+  quote: {
+    id: string;
+    userAddress: string;
+    psbt: string;
+  },
+  {
+    apiKey,
+    apiUrl,
+  }: {
+    apiKey: string;
+    apiUrl: string;
+  }
+) => {
+  const url = new URL("/api/quotes/btc/execute-quote", apiUrl);
 
   return fetch(url, {
     method: "post",
     body: JSON.stringify(quote),
     headers: {
       "Content-Type": "application/json",
-      "x-api-key": process.env.NEXT_PUBLIC_ONEBALANCE_API_KEY!,
+      "x-api-key": apiKey,
     },
   })
     .then(async (response) => {
