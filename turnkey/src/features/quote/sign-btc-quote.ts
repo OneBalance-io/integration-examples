@@ -3,46 +3,9 @@ import ECPairFactory from "ecpair";
 import * as ecc from "tiny-secp256k1";
 import { toHex } from "viem";
 import { TurnkeyPasskeyClient } from "../turnkey/use-turnkey-auth";
+import { executeBTCQuote } from "./execute-btc-quote";
 
 const ECPair = ECPairFactory(ecc);
-
-class TurnkeySigner {
-  constructor(
-    public address: string,
-    public publicKey: Buffer,
-    public passkeyClient: TurnkeyPasskeyClient,
-    public organizationId: string
-  ) {}
-
-  async sign(hash: Buffer, _lowrR: boolean): Promise<Buffer> {
-    const { r, s } = await signRawPayload(
-      this.passkeyClient,
-      this.organizationId
-    )(hash, this.address);
-    return Buffer.from(r + s, "hex");
-  }
-
-  async signSchnorr(hash: Buffer): Promise<Buffer> {
-    const { r, s } = await signRawPayload(
-      this.passkeyClient,
-      this.organizationId
-    )(hash, this.address);
-
-    return Buffer.from(r + s, "hex");
-  }
-}
-
-const signRawPayload =
-  (passkeyClient: TurnkeyPasskeyClient, organizationId: string) =>
-  async (hash: Buffer, address: string) => {
-    return passkeyClient.signRawPayload({
-      payload: toHex(hash),
-      signWith: address,
-      encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
-      hashFunction: "HASH_FUNCTION_NO_OP",
-      organizationId,
-    });
-  };
 
 export const signPSBTWithTurnkey =
   ({
@@ -50,37 +13,130 @@ export const signPSBTWithTurnkey =
     publicKey,
     passkeyClient,
     organizationId,
+    quoteId,
+    walletId,
+    apiKey,
+    apiUrl,
   }: {
     walletAddress: string;
     publicKey: string;
     passkeyClient: TurnkeyPasskeyClient;
     organizationId: string;
+    quoteId: string;
+    walletId: string;
+    apiKey: string;
+    apiUrl: string;
   }) =>
   async (psbtString: string) => {
-    console.log("cp1", psbtString, publicKey);
     const psbt = bitcoin.Psbt.fromHex(psbtString);
-    console.log("cp2", psbt);
     const pair = ECPair.fromPublicKey(Buffer.from(publicKey, "hex"));
-    console.log("cp3", pair);
 
-    const signer = new TurnkeySigner(
-      walletAddress,
-      // @ts-expect-error
-      pair.publicKey,
+    const expectedHashesLength = psbt.inputCount;
+    const hashesToSign: Buffer[] = [];
+
+    let mockPromiseReject: (() => void) | undefined;
+    const mockPromise = new Promise<Buffer>((resolve, reject) => {
+      mockPromiseReject = reject;
+    });
+
+    // Mock signer that collects all buffers into an array,
+    // and returns a promise that never resolves, and rejects when all populated
+    class MockSigner {
+      constructor(public publicKey: Buffer) {}
+
+      async sign(hash: Buffer, _lowrR: boolean): Promise<Buffer> {
+        hashesToSign.push(hash);
+        if (hashesToSign.length === expectedHashesLength) {
+          mockPromiseReject?.();
+        }
+
+        return mockPromise;
+      }
+
+      async signSchnorr(hash: Buffer): Promise<Buffer> {
+        hashesToSign.push(hash);
+        if (hashesToSign.length === expectedHashesLength) {
+          mockPromiseReject?.();
+        }
+
+        return mockPromise;
+      }
+    }
+
+    try {
+      await psbt.signAllInputsAsync(
+        new MockSigner(Buffer.from(pair.publicKey))
+      );
+    } catch (error) {}
+    const signRawPayloadsResult = await signRawPayloads(
       passkeyClient,
-      organizationId
+      organizationId,
+      hashesToSign,
+      walletAddress
     );
 
-    const count = psbt.inputCount;
-    const signPromises: Promise<any>[] = [];
-    for (let i = 0; i < count; i++) {
-      signPromises.push(psbt.signInputAsync(i, signer));
-    }
-    console.log("direct 0", psbt.txInputs[0].hash);
-    console.log("direct 1", psbt.txInputs[1].hash);
-    console.log("direct 2", psbt.txInputs[2].hash);
-    console.log("direct 3", psbt.txInputs[3].hash);
-    await Promise.all(signPromises);
+    const executionResult = await executeBTCQuote(
+      {
+        userAddress: walletAddress,
+        fingerprint: signRawPayloadsResult.activity.fingerprint,
+        activityId: signRawPayloadsResult.activity.id,
+        organizationId,
+        id: quoteId,
+        walletId,
+        psbt: psbtString,
+        tamperProofSignature: "",
+        addressPublicKey: publicKey,
+      },
+      {
+        apiKey,
+        apiUrl,
+      }
+    );
 
-    return psbt.finalizeAllInputs().extractTransaction().toHex();
+    console.log({
+      executionResult,
+    });
+
+    return executionResult;
   };
+
+const signRawPayloads = async (
+  passkeyClient: TurnkeyPasskeyClient,
+  organizationId: string,
+  hashes: Buffer[],
+  address: string
+): ReturnType<typeof passkeyClient.signRawPayloads> => {
+  const payload = {
+    type: "ACTIVITY_TYPE_SIGN_RAW_PAYLOADS",
+    timestampMs: Date.now().toString(),
+    parameters: {
+      payloads: hashes.map((hash) => toHex(hash)),
+      signWith: address,
+      encoding: "PAYLOAD_ENCODING_HEXADECIMAL" as const,
+      hashFunction: "HASH_FUNCTION_NO_OP" as const,
+    },
+    organizationId,
+  };
+
+  const stamp = await passkeyClient.stampSignRawPayloads(payload as any);
+
+  if (!stamp) throw new Error("Failed to initiate signing");
+
+  return fetch(stamp.url, {
+    method: "post",
+    body: stamp.body,
+    headers: {
+      "Content-Type": "application/json",
+      [stamp.stamp.stampHeaderName]: stamp.stamp.stampHeaderValue,
+    },
+  })
+    .then(async (response) => {
+      if (!response.ok) throw await response.json();
+      return response.json();
+    })
+    .then((response) => {
+      if (typeof response === "object" && response.error)
+        throw new Error(response.error);
+      return response;
+    });
+};

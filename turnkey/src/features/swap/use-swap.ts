@@ -4,20 +4,19 @@ import { FormEvent } from "react";
 import { Address } from "viem";
 import { AssetId } from "../assets/assets";
 import { useBalances } from "../balances/use-balances";
+import { useEnvironment } from "../environment/environment";
+import { useBTCAccount } from "../onebalance-account/use-btc-account";
 import {
   ADMIN_ADDRESS,
   useEmbeddedWallet,
   useOneBalanceAccountAddress,
 } from "../onebalance-account/use-onebalance-account";
 import { executeQuote } from "../quote/execute-quote";
-import { signQuoteWithTurnkeySigner } from "../quote/sign-quote";
-import { fetchSwapQuote, SwapRequest } from "./fetch-swap-quote";
-import { useBTCAccount } from "../onebalance-account/use-btc-account";
 import { signPSBTWithTurnkey } from "../quote/sign-btc-quote";
-import { fetchSwapBTCQuote } from "./fetch-swap-btc-quote";
+import { signQuoteWithTurnkeySigner } from "../quote/sign-quote";
 import { TurnkeyPasskeyClient } from "../turnkey/use-turnkey-auth";
-import { executeBTCQuote } from "../quote/execute-btc-quote";
-import { useEnvironment } from "../environment/environment";
+import { fetchSwapBTCQuote } from "./fetch-swap-btc-quote";
+import { fetchSwapQuote, SwapRequest } from "./fetch-swap-quote";
 
 export const useSwap = () => {
   const balancesQuery = useBalances();
@@ -63,6 +62,7 @@ const useSwapMutation = () => {
   return useMutation({
     mutationFn: async (request: SwapRequest) => {
       const isBTC = request.fromAggregatedAssetId === ("BTC" as any);
+      if (!embeddedWallet) throw new Error("No embedded wallet found");
 
       if (isBTC) {
         return btcSwap({
@@ -70,6 +70,7 @@ const useSwapMutation = () => {
           passkeyClient: passkeyClient!,
           apiKey,
           apiUrl,
+          evmAddress: embeddedWallet.address,
         })(request);
       }
 
@@ -120,11 +121,13 @@ const btcSwap =
     passkeyClient,
     apiKey,
     apiUrl,
+    evmAddress,
   }: {
     btcData: ReturnType<typeof useBTCAccount>;
     passkeyClient: TurnkeyPasskeyClient;
     apiKey: string;
     apiUrl: string;
+    evmAddress: string;
   }) =>
   async (request: SwapRequest) => {
     const [btcWallet, btcAddress] = btcData;
@@ -134,38 +137,27 @@ const btcSwap =
     const quote = await fetchSwapBTCQuote(
       {
         ...request,
-        // userAddress: btcAddress.address,
-        // // TODO: Replace with the actual recipient account ID
-        // recipientAccountId: '',
-        userAddress: "bc1qg37pd4vt82lfg3m7nkmllhgkpudmtg55k5fxlt",
-        recipientAccountId:
-          "eip155:8453:0xA311bD47CAC52fD370421714EA81d8D25aF169dC",
-        // recipientAccountId: `bip122:000000000019d6689c085ae165831e93:${btcAddress.address}`,
+        userAddress: btcAddress.address,
+        recipientAccountId: `eip155:8453:${evmAddress}`,
       },
       {
         apiKey,
         apiUrl,
       }
     );
-    const signature = await signPSBTWithTurnkey({
+    const result = await signPSBTWithTurnkey({
       walletAddress: btcAddress.address,
       publicKey: btcAddress.publicKey,
       passkeyClient: passkeyClient!,
       organizationId: btcWallet.btcWallet.organizationId,
+      quoteId: quote.id,
+      walletId: btcWallet.btcWallet.walletId,
+      apiKey,
+      apiUrl,
     })(quote.psbt);
 
-    const executionResult = await executeBTCQuote(
-      {
-        ...quote,
-        psbt: signature,
-      },
-      {
-        apiKey,
-        apiUrl,
-      }
-    );
     return {
-      result: executionResult,
+      result,
       quoteId: quote.id,
     };
   };

@@ -3,6 +3,12 @@ export const executeBTCQuote = (
     id: string;
     userAddress: string;
     psbt: string;
+    addressPublicKey: string;
+    activityId: string;
+    fingerprint: string;
+    organizationId: string;
+    walletId: string;
+    tamperProofSignature: string;
   },
   {
     apiKey,
