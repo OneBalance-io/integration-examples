@@ -23,3 +23,29 @@ export const fetchBalances = async ({
     return response.json();
   });
 };
+
+export const fetchBTCBalance = async ({
+  address,
+  apiKey,
+  apiUrl,
+}: {
+  address: string;
+  apiUrl: string;
+  apiKey: string;
+}): Promise<{
+  balance: string;
+  fiatValue: number;
+}> => {
+  const params = new URLSearchParams();
+  params.set("address", address);
+  const url = new URL(`/api/balances/btc?${params}`, apiUrl);
+
+  return fetch(url, {
+    headers: {
+      "x-api-key": apiKey,
+    },
+  }).then(async (response) => {
+    if (!response.ok) throw await response.json();
+    return response.json();
+  });
+};

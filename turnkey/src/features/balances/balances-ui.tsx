@@ -32,6 +32,23 @@ export const Balances = () => {
 
             <div>
               <dl>
+                {balancesQuery.data.btcBalance ? (
+                  <div className="grid grid-cols-2 max-w-96">
+                    <dt>Bitcoin</dt>
+                    <dd>
+                      {formatUnits(
+                        BigInt(balancesQuery.data.btcBalance.balance),
+                        8
+                      )}{" "}
+                      BTC{" "}
+                      {balancesQuery.data.btcBalance.fiatValue !== undefined ? (
+                        <span className="text-white/60">
+                          {formatUSD(balancesQuery.data.btcBalance.fiatValue)}
+                        </span>
+                      ) : null}
+                    </dd>
+                  </div>
+                ) : null}
                 {balancesQuery.data.balances.balanceByAsset.map((balance) => (
                   <div
                     key={balance.aggregatedAssetId}
