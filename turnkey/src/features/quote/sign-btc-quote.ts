@@ -17,6 +17,7 @@ export const signPSBTWithTurnkey =
     walletId,
     apiKey,
     apiUrl,
+    tamperProofSignature,
   }: {
     walletAddress: string;
     publicKey: string;
@@ -26,6 +27,7 @@ export const signPSBTWithTurnkey =
     walletId: string;
     apiKey: string;
     apiUrl: string;
+    tamperProofSignature: string;
   }) =>
   async (psbtString: string) => {
     const psbt = bitcoin.Psbt.fromHex(psbtString);
@@ -84,7 +86,7 @@ export const signPSBTWithTurnkey =
         id: quoteId,
         walletId,
         psbt: psbtString,
-        tamperProofSignature: "",
+        tamperProofSignature,
         addressPublicKey: publicKey,
       },
       {

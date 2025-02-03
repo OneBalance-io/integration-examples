@@ -27,6 +27,7 @@ export const fetchSwapBTCQuote = (
   id: string;
   userAddress: string;
   psbt: string;
+  tamperProofSignature: string;
 }> => {
   const url = new URL("/api/quotes/btc/swap-quote", apiUrl);
 

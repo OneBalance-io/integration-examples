@@ -32,6 +32,9 @@ importers:
       ecpair:
         specifier: 3.0.0-rc.0
         version: 3.0.0-rc.0(typescript@5.7.2)
+      human-id:
+        specifier: ^4.1.1
+        version: 4.1.1
       next:
         specifier: 15.1.4
         version: 15.1.4(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
@@ -1540,6 +1543,10 @@ packages:
   hpke-js@1.6.1:
     resolution: {integrity: sha512-lIYfHM7jxUBamBHFxuy7iZbDMgDhIqW/T9DTg1dNnIZbwheZ9p3MWe+5IZXj2p2Jmqcixkh9IdAhjv/H4CMY2A==}
     engines: {node: '>=16.0.0'}
+
+  human-id@4.1.1:
+    resolution: {integrity: sha512-3gKm/gCSUipeLsRYZbbdA1BD83lBoWUkZ7G9VFrhWPAU76KwYo5KR8V28bpoPm/ygy0x5/GCbpRQdY7VLYCoIg==}
+    hasBin: true
 
   ieee754@1.2.1:
     resolution: {integrity: sha512-dcyqhDvX1C46lXZcVqCpK+FtMRQVdIMN6/Df5js2zouUsqG7I6sFxitIC+7KYK29KdXOLHdu9zL4sFnoVQnqaA==}
@@ -4165,6 +4172,8 @@ snapshots:
       '@hpke/dhkem-x25519': 1.6.1
       '@hpke/dhkem-x448': 1.6.1
       '@noble/hashes': 1.7.0
+
+  human-id@4.1.1: {}
 
   ieee754@1.2.1: {}
 

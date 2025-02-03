@@ -2,33 +2,44 @@
 import { useTurnkey } from "@turnkey/sdk-react";
 import { useTurnkeyAuth } from "../turnkey/use-turnkey-auth";
 import { createSubOrganization } from "@/app/actions";
+import humanId from "human-id";
 
 export const Login = () => {
   const { login } = useTurnkeyAuth();
   const { passkeyClient } = useTurnkey();
 
   const createNewPasskey = async () => {
+    const userName = humanId({
+      separator: "-",
+      capitalize: false,
+    });
+
     const credential = await passkeyClient?.createUserPasskey({
       publicKey: {
         rp: {
           name: "Wallet Passkey",
         },
-        user: {},
+        user: {
+          name: userName,
+        },
       },
     });
 
     // we'll use this credential in the next step to create a new sub-organization
-    return credential!;
+    return { credential: credential!, userName };
   };
 
   const createSubOrg = async () => {
-    const { encodedChallenge: challenge, attestation } =
-      await createNewPasskey();
+    const {
+      credential: { encodedChallenge: challenge, attestation },
+      userName,
+    } = await createNewPasskey();
 
     const createSubOrganizationResponse = await createSubOrganization(
       undefined,
       challenge,
-      attestation
+      attestation,
+      userName
     );
   };
 

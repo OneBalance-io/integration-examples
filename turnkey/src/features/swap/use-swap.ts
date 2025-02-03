@@ -58,6 +58,7 @@ const useSwapMutation = () => {
   const embeddedWallet = useEmbeddedWallet();
   const { passkeyClient } = useTurnkey();
   const { apiKey, apiUrl } = useEnvironment();
+  const { data: accountAddress } = useOneBalanceAccountAddress();
 
   return useMutation({
     mutationFn: async (request: SwapRequest) => {
@@ -70,7 +71,7 @@ const useSwapMutation = () => {
           passkeyClient: passkeyClient!,
           apiKey,
           apiUrl,
-          evmAddress: embeddedWallet.address,
+          evmAddress: accountAddress!.predictedAddress,
         })(request);
       }
 
@@ -154,6 +155,7 @@ const btcSwap =
       walletId: btcWallet.btcWallet.walletId,
       apiKey,
       apiUrl,
+      tamperProofSignature: quote.tamperProofSignature,
     })(quote.psbt);
 
     return {

@@ -4,6 +4,7 @@ import {
   Hash,
   hashTypedData,
   Hex,
+  recoverAddress,
   serializeSignature,
   toHex,
 } from "viem";
@@ -59,7 +60,9 @@ const signTypedDataWithTurnkey =
     if (!signed.signatures)
       throw new Error("No signatures returned from Turnkey");
 
-    return signed.signatures.map(serializeTurnkeySignature);
+    const signatures = signed.signatures.map(serializeTurnkeySignature);
+
+    return signatures;
   };
 
 export const signQuoteWithTurnkeySigner = (
