@@ -11,7 +11,7 @@ export const useBalances = () => {
   const [, address] = useBTCAccount();
 
   return useQuery({
-    queryKey: ["balances", account, apiKey, apiUrl],
+    queryKey: ["balances", account, apiKey, apiUrl, address?.address],
     queryFn: account?.predictedAddress
       ? async () => {
           const [balances, assets, maybeBTCBalance] = await Promise.all([

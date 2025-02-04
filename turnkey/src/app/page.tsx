@@ -66,10 +66,8 @@ export default function Home() {
         >
           <Authenticated unauthenticated={<Login />}>
             <div className="mt-16 w-full text-center">
-              <h1 className="text-5xl">Welcome</h1>
-
               <OneBalanceAccountRequired>
-                <div className="mt-8">
+                <div>
                   <div className="mt-4">
                     <Tabs.Content value="balances">
                       <Balances />

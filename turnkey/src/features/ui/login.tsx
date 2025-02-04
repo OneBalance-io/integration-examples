@@ -7,7 +7,8 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 
 export const Login = () => {
-  const { login, isLoginPending, isUserLoading } = useTurnkeyAuth();
+  const { login, isLoginPending, isUserLoading, refreshAuthStatus } =
+    useTurnkeyAuth();
   const { passkeyClient } = useTurnkey();
   const [isHydrated, setIsHydrated] = useState(false);
 
@@ -48,6 +49,7 @@ export const Login = () => {
       attestation,
       userName
     );
+    refreshAuthStatus();
   };
 
   return (

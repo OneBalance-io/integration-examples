@@ -6,15 +6,22 @@ import * as Tabs from "@radix-ui/react-tabs";
 import { ComponentProps, Fragment, ReactNode } from "react";
 import { useOneBalanceAccountAddress } from "../onebalance-account/use-onebalance-account";
 import { useBTCAccount } from "../onebalance-account/use-btc-account";
+import { CreateBTCWalletUI } from "../onebalance-account/create-btc-wallet-ui";
+import { useTurnkey } from "@turnkey/sdk-react";
+import { useTurnkeyAuth } from "../turnkey/use-turnkey-auth";
 
 export const Balances = () => {
   const balancesQuery = useBalances();
   const { data: account } = useOneBalanceAccountAddress();
-  const [, btcAddress] = useBTCAccount();
+  const [btcWallet, btcAddress, createBTCWallet] = useBTCAccount();
+  const { passkeyClient } = useTurnkey();
+  const { user } = useTurnkeyAuth();
 
   return (
     <div>
-      <Tabs.Root defaultValue="evm" className="max-w-2xl mx-auto">
+      <h1 className="text-5xl">Welcome</h1>
+
+      <Tabs.Root defaultValue="evm" className="max-w-2xl mx-auto mt-8">
         <Tabs.List className="flex">
           <TabTrigger
             value="evm"
@@ -23,14 +30,58 @@ export const Balances = () => {
             fiatBalance={balancesQuery.data?.balances.totalBalance.fiatValue}
             className="rounded-l-xl"
           />
-          <TabTrigger
-            value="btc"
-            title="BTC Balance"
-            address={btcAddress?.address}
-            fiatBalance={balancesQuery.data?.btcBalance?.fiatValue}
-            className="rounded-r-xl"
-            disabled
-          />
+
+          {btcWallet._tag === "NoWallet" ? (
+            createBTCWallet.status === "pending" ? (
+              <p className="animate-pulse flex flex-col gap-1">
+                <span>Creating your BTC wallet</span>
+                <span className="text-sm">Please wait...</span>
+              </p>
+            ) : (
+              <CreateBTCWalletUI
+                onSubmit={async () => {
+                  if (!user) return;
+
+                  const credential = await passkeyClient?.createUserPasskey({
+                    publicKey: {
+                      rp: {
+                        name: "BTC Wallet Passkey",
+                      },
+                      user: {
+                        name: `[BTC] ${user.username}`,
+                      },
+                    },
+                  });
+                  if (!credential) return;
+
+                  const { encodedChallenge: challenge, attestation } =
+                    credential;
+
+                  createBTCWallet.mutate({
+                    userName: user.username,
+                    apiKeys: [],
+                    authenticators: [
+                      {
+                        authenticatorName: "Default BTC Passkey",
+                        challenge: challenge,
+                        attestation: attestation,
+                      },
+                    ],
+                    oauthProviders: [],
+                  });
+                }}
+              />
+            )
+          ) : btcAddress ? (
+            <TabTrigger
+              value="btc"
+              title="BTC Balance"
+              address={btcAddress?.address}
+              fiatBalance={balancesQuery.data?.btcBalance?.fiatValue}
+              className="rounded-r-xl"
+              disabled
+            />
+          ) : null}
         </Tabs.List>
 
         <Tabs.Content value="evm">
@@ -106,7 +157,9 @@ const TabTrigger = (
       <dl className="flex flex-col gap-4">
         <dt className="text-gray">{props.title}</dt>
         <dd className="text-4xl">
-          {props.fiatBalance ? formatUSD(props.fiatBalance) : "..."}
+          {props.fiatBalance !== undefined
+            ? formatUSD(props.fiatBalance)
+            : "..."}
         </dd>
         {props.address ? (
           <div className="flex gap-2 items-center">

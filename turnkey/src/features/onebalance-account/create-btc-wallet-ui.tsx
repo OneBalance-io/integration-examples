@@ -17,7 +17,7 @@ export const BTCWalletUI = () => {
       </p>
     ) : (
       <CreateBTCWalletUI
-        onSubmit={async ({ email }) => {
+        onSubmit={async () => {
           if (!user) return;
 
           const credential = await passkeyClient?.createUserPasskey({
@@ -25,7 +25,9 @@ export const BTCWalletUI = () => {
               rp: {
                 name: "BTC Wallet Passkey",
               },
-              user: {},
+              user: {
+                name: `[BTC] ${user.username}`,
+              },
             },
           });
           if (!credential) return;
@@ -43,7 +45,6 @@ export const BTCWalletUI = () => {
               },
             ],
             oauthProviders: [],
-            userEmail: email,
           });
         }}
       />
@@ -56,39 +57,13 @@ export const BTCWalletUI = () => {
   ) : null;
 };
 
-const CreateBTCWalletUI = ({
-  onSubmit,
-}: {
-  onSubmit: ({}: { email: string }) => void;
-}) => {
-  const [isCreating, setIsCreating] = useState(false);
-
-  if (!isCreating)
-    return (
-      <button onClick={() => setIsCreating(true)}>Create BTC account</button>
-    );
-
+export const CreateBTCWalletUI = ({ onSubmit }: { onSubmit: () => void }) => {
   return (
-    <form
-      className="flex flex-col w-fit justify-center gap-2"
-      onSubmit={(event) => {
-        event.preventDefault();
-        const formData = new FormData(event.target as HTMLFormElement);
-
-        onSubmit({
-          email: formData.get("email") as string,
-        });
-      }}
+    <button
+      className={`flex aria-selected:bg-surface-level-2 p-5 text-left w-1/2 border border-surface-level-2 rounded-r-xl`}
+      onClick={() => onSubmit()}
     >
-      <input
-        placeholder="Your BTC wallet email"
-        type="email"
-        name="email"
-        required
-        className="px-4 py-3 rounded-xl bg-surface-level-3 h-14"
-      />
-
-      <button type="submit">Create BTC account</button>
-    </form>
+      Create BTC account
+    </button>
   );
 };

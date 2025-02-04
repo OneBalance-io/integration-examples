@@ -69,5 +69,6 @@ export const useTurnkeyAuth = () => {
     wallets: wallets,
     isLoginPending,
     isUserLoading,
+    refreshAuthStatus: refetch,
   };
 };
