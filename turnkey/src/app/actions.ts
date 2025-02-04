@@ -33,7 +33,8 @@ type TAttestation = {
 export const createSubOrganization = async (
   email: string | undefined,
   credential: string,
-  attestation: TAttestation
+  attestation: TAttestation,
+  userName: string
 ) => {
   const createSubOrgResponse = await turnkeyServer.createSubOrganization({
     subOrganizationName: "EVM Sub Org",
