@@ -4,15 +4,20 @@ import { createBTCWallet } from "./create-btc-wallet";
 import { fetchBTCWalletAddress } from "./fetch-btc-wallet-address";
 import { useEnvironment } from "../environment/environment";
 
-const usePersistedBTCWallet = () =>
+const usePersistedBTCWallet = () => {
   // persisting these values in local storage is not advisable.
   // they should be persisted in a database against your user.
   // this integration example uses local storage to simulate
   // database persistance. Please exercise caution if copying this example
-  useLocalStorage<{ walletId: string; organizationId: string } | null>(
-    "btc-wallet",
-    null
-  );
+  const [value, setValue] = useLocalStorage<
+    { walletId: string; organizationId: string } | "null"
+  >("btc-wallet", "null");
+
+  if (value === "null" || !value || Object.keys(value).length === 0)
+    return [null, setValue] as const;
+
+  return [value, setValue] as const;
+};
 
 const useCreateBTCAccount = ({
   onSuccess,
