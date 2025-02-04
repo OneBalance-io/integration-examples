@@ -55,9 +55,6 @@ export const useBalances = () => {
             }
           );
 
-          balances.totalBalance.fiatValue =
-            balances.totalBalance.fiatValue + (maybeBTCBalance?.fiatValue ?? 0);
-
           return {
             balances: {
               ...balances,

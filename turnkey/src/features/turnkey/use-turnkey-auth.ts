@@ -10,20 +10,31 @@ export type TurnkeyPasskeyClient = NonNullable<
 export const useTurnkeyAuth = () => {
   const { turnkey, passkeyClient } = useTurnkey();
   const { mutate: logout } = useMutation({
-    mutationFn: (_turnkey: TurnkeyBrowserSDK) => _turnkey.logoutUser(),
+    mutationFn: (_turnkey: TurnkeyBrowserSDK) => {
+      return _turnkey.logoutUser();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: "authenticated" });
+      refetch();
+    },
   });
 
-  const { data: user, refetch } = useQuery({
+  const {
+    data: user,
+    refetch,
+    isLoading: isUserLoading,
+  } = useQuery({
     queryKey: ["authenticated"],
     queryFn: async () => {
-      return turnkey!.getCurrentUser();
+      const result = await turnkey!.getCurrentUser();
+      return result ?? null;
     },
     enabled: !!turnkey,
   });
 
-  const { mutate: login } = useMutation({
-    mutationFn: () => {
-      return passkeyClient!.login().then((result) => {
+  const { mutate: login, isPending: isLoginPending } = useMutation({
+    mutationFn: async () => {
+      const loginResult = await passkeyClient!.login().then((result) => {
         queryClient.invalidateQueries({ queryKey: "authenticated" });
         refetch();
         return result;
@@ -56,5 +67,7 @@ export const useTurnkeyAuth = () => {
     user,
     login,
     wallets: wallets,
+    isLoginPending,
+    isUserLoading,
   };
 };

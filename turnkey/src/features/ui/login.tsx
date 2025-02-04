@@ -3,10 +3,17 @@ import { useTurnkey } from "@turnkey/sdk-react";
 import { useTurnkeyAuth } from "../turnkey/use-turnkey-auth";
 import { createSubOrganization } from "@/app/actions";
 import humanId from "human-id";
+import Image from "next/image";
+import { useEffect, useState } from "react";
 
 export const Login = () => {
-  const { login } = useTurnkeyAuth();
+  const { login, isLoginPending, isUserLoading } = useTurnkeyAuth();
   const { passkeyClient } = useTurnkey();
+  const [isHydrated, setIsHydrated] = useState(false);
+
+  useEffect(() => {
+    setIsHydrated(true);
+  }, []);
 
   const createNewPasskey = async () => {
     const userName = humanId({
@@ -44,28 +51,45 @@ export const Login = () => {
   };
 
   return (
-    <div className="flex justify-center">
-      <div className="rounded-lg text-center border-surface-level-3 border py-8 px-5 bg-surface-level-2 inline-block">
-        <h1 className="font-semibold text-3xl max-w-96 mx-auto">
-          Welcome to OneBalance + Turnkey example app
+    <div
+      className={`flex-1 flex flex-col justify-between gap-4 p-4 ${
+        !isHydrated ? "invisible" : ""
+      }`}
+    >
+      <div className="flex justify-center mx-auto flex-1">
+        <div className="w-40 pt-14">
+          <Image
+            src="/onebalance.png"
+            width={327}
+            height={56}
+            alt="OneBalance"
+          />
+        </div>
+      </div>
+      <div className="rounded-lg text-center gap-16 flex flex-1 flex-col">
+        <h1 className="text-5xl max-w-xl mx-auto">
+          Welcome to OneBalance Bitcoin demo app
         </h1>
 
-        <hr className="max-w-32 mx-auto my-5 border-surface-level-3" />
+        <div className="flex gap-4 justify-center">
+          <button
+            onClick={() => login()}
+            className="h-20 py-[30px] px-10 text-base bg-brand-orange rounded-full text-black"
+          >
+            {isLoginPending || isUserLoading
+              ? "Logging in..."
+              : "Log in with Passkey"}
+          </button>
 
-        <button
-          onClick={() => login()}
-          className="bg-brand-orange rounded-full text-black py-4 px-10 font-medium"
-        >
-          Please log in
-        </button>
-
-        <button
-          onClick={() => createSubOrg()}
-          className="rounded-full py-4 px-10 font-medium"
-        >
-          Signup
-        </button>
+          <button
+            onClick={() => createSubOrg()}
+            className="bg-transparent border-2 border-surface-level-4 text-white disabled:text-surface-level-4 py-4 px-10 rounded-full"
+          >
+            Signup
+          </button>
+        </div>
       </div>
+      <div className="flex-1" />
     </div>
   );
 };

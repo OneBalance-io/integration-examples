@@ -85,4 +85,12 @@ body {
   color: var(--foreground);
   background: var(--background);
   font-family: Arial, Helvetica, sans-serif;
+
+  @apply flex-1;
+}
+
+html,
+body {
+  @apply flex flex-col;
+  min-height: 100%;
 }
