@@ -37,10 +37,10 @@ export const createSubOrganization = async (
   userName: string
 ) => {
   const createSubOrgResponse = await turnkeyServer.createSubOrganization({
-    subOrganizationName: "EVM Sub Org",
+    subOrganizationName: `User Sub Org - ${userName}`,
     rootUsers: [
       {
-        userName: "Default User Name",
+        userName,
         userEmail: email,
         apiKeys: [],
         authenticators: [
@@ -55,7 +55,7 @@ export const createSubOrganization = async (
     ],
     rootQuorumThreshold: 1,
     wallet: {
-      walletName: "Default Wallet",
+      walletName: "Default EVM Wallet",
       accounts: DEFAULT_ETHEREUM_ACCOUNTS,
     },
   });
