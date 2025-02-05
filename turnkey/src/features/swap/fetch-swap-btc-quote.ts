@@ -28,6 +28,16 @@ export const fetchSwapBTCQuote = (
   userAddress: string;
   psbt: string;
   tamperProofSignature: string;
+
+  details: {
+    currencyOut:
+      | {
+          amount: string | undefined;
+          amountFormatted: string | undefined;
+          amountUsd: string | undefined;
+        }
+      | undefined;
+  };
 }> => {
   const url = new URL("/api/quotes/btc/swap-quote", apiUrl);
 

@@ -1,21 +1,25 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { formatUnits } from "viem";
 import { AssetId } from "../assets/assets";
 import { useBalances } from "../balances/use-balances";
+import { TokenInput } from "../input/input";
 import { useBTCAccount } from "../onebalance-account/use-btc-account";
 import { TransactionStatusUI } from "../transaction-status/transaction-status-ui";
-import { useSwap } from "./use-swap";
+import { useSwap, useSwapQuote } from "./use-swap";
 
 export const Swap = () => {
   const balancesQuery = useBalances();
 
   return (
     <div>
-      <h2 className="text-2xl font-medium">Swap</h2>
+      <h1 className="text-5xl flex flex-col">
+        <span>Just swap it,</span>
+        <span className="text-gray">forget the chains</span>
+      </h1>
 
       {balancesQuery.status === "pending" ? (
-        <p className="animate-pulse text-white/50">Loading data...</p>
+        <p className="animate-pulse text-white/50">Loading your account...</p>
       ) : null}
       {balancesQuery.status === "success" ? (
         <SwapForm balances={balancesQuery.data} />
@@ -31,19 +35,83 @@ const SwapForm = ({
 }) => {
   const { submit, mutation } = useSwap();
   const [fromAssetId, setFromAssetId] = useState<AssetId>(
-    balances.assets[0].aggregatedAssetId
+    balances.btcBalance
+      ? ("BTC" as AssetId)
+      : balances.assets[1].aggregatedAssetId
+  );
+  const [toAssetId, setToAssetId] = useState<AssetId>(
+    balances.assets[1].aggregatedAssetId
   );
   const [btcAccount] = useBTCAccount();
-  const [amount, setAmount] = useState<string>("");
-  const fromAsset = balances.assets.find(
-    (asset) => asset.aggregatedAssetId === fromAssetId
+  const [amount, setAmount] = useState<string>("0.00");
+  const fromAsset =
+    // @ts-expect-error
+    fromAssetId === "BTC"
+      ? { aggregatedAssetId: "BTC" as any, symbol: "BTC" }
+      : balances.assets.find(
+          (asset) => asset.aggregatedAssetId === fromAssetId
+        );
+  const fromAssetBalance =
+    // @ts-expect-error
+    fromAssetId === "BTC"
+      ? {
+          aggregatedAssetId: "BTC" as any,
+          balance: balances.btcBalance?.balance ?? 0,
+          decimals: 8,
+        }
+      : balances.balances.balanceByAsset.find(
+          (balance) => balance.aggregatedAssetId === fromAssetId
+        )!;
+  const toAsset = balances.assets.find(
+    (asset) => asset.aggregatedAssetId === toAssetId
   );
-  let amountAsBigInt: bigint;
-  try {
-    amountAsBigInt = BigInt(amount);
-  } catch {
-    amountAsBigInt = BigInt(0);
-  }
+  const toAssetBalance = balances.balances.balanceByAsset.find(
+    (balance) => balance.aggregatedAssetId === toAssetId
+  )!;
+
+  const amountAsBigInt = useMemo(
+    () =>
+      BigInt(
+        Math.floor(
+          parseFloat(amount) *
+            // @ts-expect-error
+            10 ** (fromAssetId === "BTC" ? 8 : fromAssetBalance.decimals)
+        )
+      ),
+    [amount, fromAssetId, fromAssetBalance.decimals]
+  );
+
+  const swapQuoteQuery = useSwapQuote({
+    amount: amountAsBigInt,
+    fromAggregatedAssetId: fromAssetId,
+    toAggregatedAssetId: toAssetId,
+  });
+
+  useEffect(() => {
+    if (fromAssetId === toAssetId) {
+      // find the first asset that is not the fromAssetId
+      const firstAsset = balances.assets.find(
+        (asset) => asset.aggregatedAssetId !== fromAssetId
+      );
+      setToAssetId(firstAsset!.aggregatedAssetId);
+    }
+  }, [fromAssetId, toAssetId]);
+
+  const fromAssets = useMemo(() => {
+    if (btcAccount._tag === "ExistingWallet") {
+      return [
+        { aggregatedAssetId: "BTC" as any, symbol: "BTC" },
+        ...balances.assets,
+      ];
+    }
+    return balances.assets;
+  }, [btcAccount, balances.assets]);
+
+  const toAssets = useMemo(() => {
+    return fromAssets.filter(
+      (asset) => asset.aggregatedAssetId !== fromAssetId
+    );
+  }, [fromAssetId, fromAssets]);
 
   if (mutation.status === "success") {
     return (
@@ -54,93 +122,97 @@ const SwapForm = ({
     );
   }
 
+  const toAmount = swapQuoteQuery.isFetching
+    ? "-"
+    : (swapQuoteQuery.data?._tag === "BTC"
+        ? swapQuoteQuery.data?.details.currencyOut?.amountFormatted
+        : formatUnits(
+            BigInt(swapQuoteQuery.data?.destinationToken.amount ?? "0"),
+            toAssetBalance.decimals
+          )) ?? "-";
+
   return (
-    <form className="flex flex-col gap-4 mt-4 max-w-[500px]" onSubmit={submit}>
-      <div className="flex flex-col gap-1">
-        <label htmlFor="from" className="text-sm text-white/70">
-          From
-        </label>
+    <form
+      className="flex flex-col gap-4 mt-14 max-w-2xl mx-auto"
+      onSubmit={(event) =>
+        submit(
+          event,
+          {
+            from: fromAssetId,
+            to: toAssetId,
+            amount: amountAsBigInt,
+          },
+          swapQuoteQuery.data
+        )
+      }
+    >
+      <TokenInput
+        balance={{
+          amount: BigInt(fromAssetBalance.balance),
+          decimals: fromAssetBalance.decimals,
+        }}
+        asset={fromAsset!}
+        setAssetId={setFromAssetId}
+        assets={fromAssets}
+        selectProps={{
+          id: "from",
+          name: "from",
+        }}
+        errorMessage={swapQuoteQuery.error?.message}
+        inputProps={{
+          type: "text",
+          id: "amount",
+          name: "amount",
+          required: true,
+          value: amount,
+          onChange: (event) =>
+            setAmount((event.target as HTMLInputElement).value),
+        }}
+      />
 
-        <select
-          id="from"
-          name="from"
-          value={fromAssetId}
-          className="px-4 py-3 rounded-xl bg-surface-level-3 h-14"
-          onChange={(event) => setFromAssetId(event.target.value as AssetId)}
-        >
-          {btcAccount._tag === "ExistingWallet" ? (
-            <option value="BTC">BTC</option>
-          ) : null}
-
-          {balances.assets.map((asset) => {
-            return (
-              <option
-                value={asset.aggregatedAssetId}
-                key={asset.aggregatedAssetId}
-              >
-                {asset.symbol}
-              </option>
-            );
-          })}
-        </select>
+      <div className="flex justify-center my-4">
+        <div className="size-3 rounded-sm border-2 border-l-transparent border-t-transparent relative top-[-4px] border-white rotate-45" />
       </div>
 
-      <div className="flex flex-col gap-1">
-        <label htmlFor="amount" className="text-sm text-white/70">
-          Amount
-        </label>
-
-        <input
-          type="text"
-          id="amount"
-          name="amount"
-          value={amount}
-          onChange={(event) => setAmount(event.target.value)}
-          required
-          className="px-4 py-3 rounded-xl bg-surface-level-3 h-14"
-        />
-
-        {fromAsset ? (
-          <p className="text-white/60 text-sm">
-            {formatUnits(amountAsBigInt, fromAsset.decimals)} {fromAsset.symbol}
-          </p>
-        ) : null}
-      </div>
-
-      <div className="flex flex-col gap-1">
-        <label htmlFor="to" className="text-sm text-white/70">
-          To
-        </label>
-
-        <select
-          id="to"
-          name="to"
-          defaultValue={balances.assets[1].aggregatedAssetId}
-          className="px-4 py-3 rounded-xl bg-surface-level-3 h-14"
-        >
-          {balances.assets.map((asset) => {
-            return (
-              <option
-                value={asset.aggregatedAssetId}
-                key={asset.aggregatedAssetId}
-              >
-                {asset.symbol}
-              </option>
-            );
-          })}
-        </select>
-      </div>
+      <TokenInput
+        balance={{
+          amount: BigInt(toAssetBalance.balance),
+          decimals: toAssetBalance.decimals,
+        }}
+        asset={toAsset!}
+        setAssetId={setToAssetId}
+        assets={toAssets}
+        amount={toAmount}
+        inputProps={{
+          value: toAmount,
+        }}
+        selectProps={{
+          id: "to",
+          name: "to",
+        }}
+      />
 
       <div>
         <button
           type="submit"
-          className="bg-brand-orange rounded-full text-black py-4 px-10 font-medium"
+          className="h-20 rounded-[100px] py-[30px] px-10 text-base bg-brand-orange text-brand-orange-foreground hover:bg-brand-orange-lighten-20 mt-20 w-full disabled:opacity-50 disabled:cursor-not-allowed justify-center flex"
+          disabled={swapQuoteQuery.isFetching}
         >
-          {mutation.status === "pending" ? (
-            <span className="animate-pulse">Swapping...</span>
-          ) : (
-            "Initiate swap"
-          )}
+          <span className="flex items-center gap-2">
+            {mutation.status === "pending" ? (
+              <span className="animate-pulse">Swapping...</span>
+            ) : swapQuoteQuery.isFetching ? (
+              <span className="animate-pulse">Retrieving quote...</span>
+            ) : (
+              "Swap tokens"
+            )}
+
+            {/* <span>
+              <SwapRateRefresh
+                startTime={new Date(swapQuoteQuery.dataUpdatedAt)}
+              />
+            </span> */}
+          </span>
         </button>
         <p className="text-red-400">{mutation.error?.message}</p>
       </div>

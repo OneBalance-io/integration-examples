@@ -1,7 +1,7 @@
 import { Quote } from "./quote";
 
 export const executeQuote = (
-  quote: Quote,
+  quote: Quote & { _tag: "BTC" | "EVM" },
   {
     apiKey,
     apiUrl,
@@ -11,10 +11,11 @@ export const executeQuote = (
   }
 ) => {
   const url = new URL("/api/quotes/execute-quote", apiUrl);
+  const { _tag, ...quoteToSend } = quote;
 
   return fetch(url, {
     method: "post",
-    body: JSON.stringify(quote),
+    body: JSON.stringify(quoteToSend),
     headers: {
       "Content-Type": "application/json",
       "x-api-key": apiKey,

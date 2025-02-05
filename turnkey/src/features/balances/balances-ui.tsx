@@ -147,66 +147,72 @@ const TabTrigger = (
     title: ReactNode;
   }
 ) => {
+  const { title, fiatBalance, address, ...rest } = props;
+
   return (
     <Tabs.Trigger
-      {...props}
+      {...rest}
       className={`flex aria-selected:bg-surface-level-2 p-5 text-left w-1/2 border border-surface-level-2 ${
         props.className ?? ""
       }`}
+      asChild
     >
-      <dl className="flex flex-col gap-4">
-        <dt className="text-gray">{props.title}</dt>
-        <dd className="text-4xl">
-          {props.fiatBalance !== undefined
-            ? formatUSD(props.fiatBalance)
-            : "..."}
-        </dd>
-        {props.address ? (
-          <div className="flex gap-2 items-center">
-            <p className="text-gray flex">
-              <span>{props.address.slice(0, 8)}</span>
-              <span>...</span>
-              <span>{props.address.slice(-8)}</span>
-            </p>
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                if (props.address) {
-                  navigator.clipboard.writeText(props.address);
-                }
-              }}
-              className="text-gray hover:text-white hover:bg-surface-level-4 rounded-full p-1 text-sm self-start"
-            >
-              <div className="sr-only">Copy address</div>
-              <svg
-                width="20"
-                height="20"
-                viewBox="0 0 20 20"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
+      {/* sigh.. a clickable div, i know, i know.. but needed for the copy button to work */}
+      <div>
+        <dl className="flex flex-col gap-4">
+          <dt className="text-gray">{props.title}</dt>
+          <dd className="text-4xl">
+            {props.fiatBalance !== undefined
+              ? formatUSD(props.fiatBalance)
+              : "..."}
+          </dd>
+          {props.address ? (
+            <div className="flex gap-2 items-center">
+              <p className="text-gray flex" title={props.address}>
+                <span>{props.address.slice(0, 8)}</span>
+                <span>...</span>
+                <span>{props.address.slice(-8)}</span>
+              </p>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (props.address) {
+                    navigator.clipboard.writeText(props.address);
+                  }
+                }}
+                className="text-gray hover:text-white hover:bg-surface-level-4 rounded-full p-1 text-sm self-start"
               >
-                <path
-                  d="M18 4V18H4"
-                  stroke="#6F767E"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-                <rect
-                  x="2"
-                  y="2"
-                  width="14"
-                  height="14"
-                  stroke="#6F767E"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </button>
-          </div>
-        ) : null}
-      </dl>
+                <div className="sr-only">Copy address</div>
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 20 20"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M18 4V18H4"
+                    stroke="#6F767E"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                  <rect
+                    x="2"
+                    y="2"
+                    width="14"
+                    height="14"
+                    stroke="#6F767E"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </button>
+            </div>
+          ) : null}
+        </dl>
+      </div>
     </Tabs.Trigger>
   );
 };
