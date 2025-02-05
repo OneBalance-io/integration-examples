@@ -1,11 +1,37 @@
 "use client";
-import { formatUnits } from "viem";
+import { formatUnits, parseUnits, isAddress } from "viem";
 import { useBalances } from "../balances/use-balances";
-import { useState } from "react";
+import { forwardRef, useMemo, useState } from "react";
 import { AssetId } from "../assets/assets";
 import { useTransfer } from "./use-transfer";
 import { useSupportedChains } from "../chain/use-supported-chains";
 import { TransactionStatusUI } from "../transaction-status/transaction-status-ui";
+import { TokenInput } from "../input/input";
+import type {
+  InputHTMLAttributes,
+  LabelHTMLAttributes,
+  PropsWithChildren,
+} from "react";
+import { useId } from "react";
+import {
+  arbitrum,
+  avalanche,
+  base,
+  linea,
+  mainnet,
+  optimism,
+  polygon,
+} from "viem/chains";
+
+const chainObjects = [
+  base,
+  arbitrum,
+  optimism,
+  polygon,
+  linea,
+  avalanche,
+  mainnet,
+];
 
 export const Transfer = () => {
   const balancesQuery = useBalances();
@@ -13,11 +39,14 @@ export const Transfer = () => {
 
   return (
     <div>
-      <h2 className="text-2xl font-medium">Transfer</h2>
+      <h2 className="text-5xl flex flex-col">
+        <span>Simple transfer,</span>
+        <span className="text-gray">as it should be</span>
+      </h2>
 
       {balancesQuery.status === "pending" ||
       chainsQuery.status === "pending" ? (
-        <p className="animate-pulse text-white/50">Loading data...</p>
+        <p className="animate-pulse text-white/50">Loading your account...</p>
       ) : null}
       {balancesQuery.status === "success" &&
       chainsQuery.status === "success" ? (
@@ -42,12 +71,22 @@ const TransferForm = ({
   const asset = balances.assets.find(
     (asset) => asset.aggregatedAssetId === assetId
   );
-  let amountAsBigInt: bigint;
-  try {
-    amountAsBigInt = BigInt(amount);
-  } catch {
-    amountAsBigInt = BigInt(0);
-  }
+  const fromAssetBalance = balances.balances.balanceByAsset.find(
+    (balance) => balance.aggregatedAssetId === assetId
+  )!;
+
+  const amountAsBigInt = useMemo(() => {
+    try {
+      return parseUnits(amount, asset!.decimals);
+    } catch {
+      return BigInt(0);
+    }
+  }, [amount, asset]);
+  const [address, setAddress] = useState("");
+  const addressError =
+    address && !isAddress(address)
+      ? "Please enter a valid Ethereum address"
+      : undefined;
 
   if (mutation.status === "success") {
     return (
@@ -59,97 +98,90 @@ const TransferForm = ({
   }
 
   return (
-    <form className="flex flex-col gap-4 mt-4 max-w-[500px]" onSubmit={submit}>
-      <div className="flex flex-col gap-1">
-        <label htmlFor="asset" className="text-sm text-white/70">
-          Asset
-        </label>
+    <form
+      className="flex flex-col gap-5 mt-14 max-w-2xl mx-auto"
+      onSubmit={(event) => submit(event, amountAsBigInt)}
+    >
+      <TokenInput
+        balance={{
+          amount: BigInt(fromAssetBalance.balance),
+          decimals: fromAssetBalance.decimals,
+        }}
+        asset={asset!}
+        setAssetId={setAssetId}
+        assets={balances.assets}
+        selectProps={{
+          id: "asset",
+          name: "asset",
+        }}
+        inputProps={{
+          type: "text",
+          id: "amount",
+          name: "amount",
+          required: true,
+          value: amount,
+          onChange: (event) =>
+            setAmount((event.target as HTMLInputElement).value),
+        }}
+      />
 
-        <select
-          id="asset"
-          name="asset"
-          value={assetId}
-          className="px-4 py-3 rounded-xl bg-surface-level-3 h-14"
-          onChange={(event) => setAssetId(event.target.value as AssetId)}
-        >
-          {balances.assets.map((asset) => {
-            return (
-              <option
-                value={asset.aggregatedAssetId}
-                key={asset.aggregatedAssetId}
-              >
-                {asset.symbol}
-              </option>
+      <InputField
+        inputProps={{
+          type: "text",
+          id: "address",
+          name: "address",
+          required: true,
+          value: address,
+          onChange: (e) => setAddress(e.target.value),
+        }}
+        labelProps={{
+          children: (
+            <span>
+              Recipient address <RequiredSup />
+            </span>
+          ),
+        }}
+        error={addressError}
+      />
+
+      <select
+        id="chain"
+        name="chain"
+        className="px-4 py-3 rounded-xl bg-surface-level-2 h-20 border border-surface-level-4"
+      >
+        {chains
+          .flatMap((chain) => {
+            const found = chainObjects.find(
+              (chainObj) => Number(chain.chain.reference) === chainObj.id
             );
-          })}
-        </select>
-      </div>
+            if (!found) return [];
 
-      <div className="flex flex-col gap-1">
-        <label htmlFor="amount" className="text-sm text-white/70">
-          Amount
-        </label>
-
-        <input
-          type="text"
-          id="amount"
-          name="amount"
-          value={amount}
-          onChange={(event) => setAmount(event.target.value)}
-          required
-          className="px-4 py-3 rounded-xl bg-surface-level-3 h-14"
-        />
-
-        {asset ? (
-          <p className="text-white/60 text-sm">
-            {formatUnits(amountAsBigInt, asset.decimals)} {asset.symbol}
-          </p>
-        ) : null}
-      </div>
-
-      <div className="flex flex-col gap-1">
-        <label htmlFor="address" className="text-sm text-white/70">
-          Recipient address
-        </label>
-
-        <input
-          type="text"
-          id="address"
-          name="address"
-          required
-          className="px-4 py-3 rounded-xl bg-surface-level-3 h-14"
-        />
-      </div>
-
-      <div className="flex flex-col gap-1">
-        <label htmlFor="chain" className="text-sm text-white/70">
-          Destination chain
-        </label>
-
-        <select
-          id="chain"
-          name="chain"
-          className="px-4 py-3 rounded-xl bg-surface-level-3 h-14"
-        >
-          {chains.map((chain) => {
+            return [[found.name, chain]] as const;
+          })
+          .map(([name, chain]) => {
             return (
               <option value={chain.chain.chain} key={chain.chain.chain}>
-                {chain.chain.reference}
+                {name}
               </option>
             );
           })}
-        </select>
-      </div>
+      </select>
 
       <div>
         <button
           type="submit"
-          className="bg-brand-orange rounded-full text-black py-4 px-10 font-medium"
+          className="h-20 rounded-[100px] py-[30px] px-10 text-base bg-brand-orange text-brand-orange-foreground hover:bg-brand-orange-lighten-20 mt-20 w-full disabled:opacity-50 disabled:cursor-not-allowed justify-center flex"
+          disabled={
+            mutation.status === "pending" ||
+            !amountAsBigInt ||
+            !!addressError ||
+            !address
+          }
         >
           {mutation.status === "pending" ? (
             <span className="animate-pulse">Transferring...</span>
           ) : (
-            "Initiate transfer"
+            "Transfer"
           )}
         </button>
         <p className="text-red-400">{mutation.error?.message}</p>
@@ -157,3 +189,80 @@ const TransferForm = ({
     </form>
   );
 };
+
+export const InputField = ({
+  labelProps,
+  inputProps,
+  error,
+  className,
+}: {
+  inputProps: InputHTMLAttributes<HTMLInputElement>;
+  labelProps?: LabelHTMLAttributes<HTMLLabelElement>;
+  className?: string;
+  error?: string;
+}) => {
+  const fallbackId = useId();
+  const rootErrorId = useId();
+  const errorId = error ? `${rootErrorId}-error` : undefined;
+  const id = inputProps.id ?? fallbackId;
+
+  return (
+    <div className={className}>
+      <div
+        className={`flex flex-col h-20 bg-surface-level-2 ring-offset-background focus-within:outline-none focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2 rounded-xl overflow-hidden text-base border border-surface-level-4 relative ${
+          error ? "border-destructive border" : ""
+        }`}
+      >
+        {labelProps ? (
+          <label
+            htmlFor={id}
+            {...labelProps}
+            className={`pl-6 text-sm text-left pt-[14px] text-gray ${
+              className ?? ""
+            }`}
+          />
+        ) : null}
+        <Input
+          id={id}
+          aria-invalid={errorId ? true : undefined}
+          aria-describedby={errorId}
+          {...inputProps}
+          className={`bg-transparent h-full pl-6 text-white ${
+            inputProps.className ?? ""
+          }`}
+        />
+      </div>
+      {errorId ? (
+        <div className="min-h-6 pt-2">
+          <p id={errorId} className="text-destructive text-xs">
+            {error}
+          </p>
+        </div>
+      ) : null}
+    </div>
+  );
+};
+
+interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {}
+
+const Input = forwardRef<HTMLInputElement, InputProps>(
+  ({ className, type, ...props }, ref) => {
+    return (
+      <input
+        type={type}
+        className={`flex h-10 w-full bg-transparent px-3 py-2 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50 ${
+          className ?? ""
+        }`}
+        ref={ref}
+        {...props}
+      />
+    );
+  }
+);
+Input.displayName = "Input";
+
+const RequiredSup = (props: PropsWithChildren<{ className?: string }>) => (
+  <sup {...props} className={`text-brand-orange ${props.className ?? ""}`}>
+    *
+  </sup>
+);

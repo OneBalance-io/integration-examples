@@ -21,7 +21,7 @@ export const useTransfer = () => {
   const oneBalanceAccountAddress = useOneBalanceAccountAddress();
 
   return {
-    submit: (event: FormEvent<HTMLFormElement>) => {
+    submit: (event: FormEvent<HTMLFormElement>, amountAsBigInt: bigint) => {
       event.preventDefault();
       const form = event.target as HTMLFormElement;
       if (!(form instanceof HTMLFormElement)) return;
@@ -45,7 +45,7 @@ export const useTransfer = () => {
           sessionAddress: embeddedWallet.address as Address,
           adminAddress: ADMIN_ADDRESS,
         },
-        amount: payload.amount as string,
+        amount: amountAsBigInt.toString(),
         recipientAccountId,
         aggregatedAssetId: payload.asset as string,
       });
@@ -72,7 +72,7 @@ const useTransferMutation = () => {
         embeddedWallet.address as Address,
         embeddedWallet.organizationId
       )(quote);
-      const executionResult = await executeQuote(signedQuote, {
+      const executionResult = await executeQuote(signedQuote as any, {
         apiKey,
         apiUrl,
       });

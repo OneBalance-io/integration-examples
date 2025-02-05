@@ -43,7 +43,7 @@ const SwapForm = ({
     balances.assets[1].aggregatedAssetId
   );
   const [btcAccount] = useBTCAccount();
-  const [amount, setAmount] = useState<string>("0.00");
+  const [amount, setAmount] = useState<string>("");
   const fromAsset =
     // @ts-expect-error
     fromAssetId === "BTC"
@@ -69,17 +69,21 @@ const SwapForm = ({
     (balance) => balance.aggregatedAssetId === toAssetId
   )!;
 
-  const amountAsBigInt = useMemo(
-    () =>
-      BigInt(
+  const amountAsBigInt = useMemo(() => {
+    if (!amount) return BigInt(0);
+
+    try {
+      return BigInt(
         Math.floor(
           parseFloat(amount) *
             // @ts-expect-error
             10 ** (fromAssetId === "BTC" ? 8 : fromAssetBalance.decimals)
         )
-      ),
-    [amount, fromAssetId, fromAssetBalance.decimals]
-  );
+      );
+    } catch {
+      return BigInt(0);
+    }
+  }, [amount, fromAssetId, fromAssetBalance.decimals]);
 
   const swapQuoteQuery = useSwapQuote({
     amount: amountAsBigInt,
@@ -160,6 +164,7 @@ const SwapForm = ({
         }}
         errorMessage={swapQuoteQuery.error?.message}
         inputProps={{
+          placeholder: "0.00",
           type: "text",
           id: "amount",
           name: "amount",
