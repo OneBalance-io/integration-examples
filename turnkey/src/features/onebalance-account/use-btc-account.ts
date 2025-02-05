@@ -4,7 +4,7 @@ import { createBTCWallet } from "./create-btc-wallet";
 import { fetchBTCWalletAddress } from "./fetch-btc-wallet-address";
 import { useEnvironment } from "../environment/environment";
 
-const usePersistedBTCWallet = () => {
+export const usePersistedBTCWallet = () => {
   // persisting these values in local storage is not advisable.
   // they should be persisted in a database against your user.
   // this integration example uses local storage to simulate

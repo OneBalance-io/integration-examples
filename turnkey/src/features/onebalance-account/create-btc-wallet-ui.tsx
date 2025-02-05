@@ -17,6 +17,7 @@ export const BTCWalletUI = () => {
       </p>
     ) : (
       <CreateBTCWalletUI
+        rootOrgId=""
         onSubmit={async () => {
           if (!user) return;
 
@@ -57,13 +58,30 @@ export const BTCWalletUI = () => {
   ) : null;
 };
 
-export const CreateBTCWalletUI = ({ onSubmit }: { onSubmit: () => void }) => {
+export const CreateBTCWalletUI = ({
+  onSubmit,
+  rootOrgId,
+}: {
+  onSubmit: () => void;
+  rootOrgId: string;
+}) => {
+  const { btcLogin } = useTurnkeyAuth();
+
   return (
-    <button
-      className={`flex aria-selected:bg-surface-level-2 p-5 text-left w-1/2 border border-surface-level-2 rounded-r-xl`}
-      onClick={() => onSubmit()}
-    >
-      Create BTC account
-    </button>
+    <div className="p-5 text-left w-1/2 border border-surface-level-2 rounded-r-xl flex flex-col gap-2">
+      <button
+        className={`flex aria-selected:bg-surface-level-2`}
+        onClick={() => onSubmit()}
+      >
+        Create BTC account
+      </button>
+      <span className="text-gray">or</span>
+      <button
+        className="text-left text-gray"
+        onClick={() => btcLogin({ rootOrgId })}
+      >
+        Recover previously created OneBalance BTC wallet
+      </button>
+    </div>
   );
 };

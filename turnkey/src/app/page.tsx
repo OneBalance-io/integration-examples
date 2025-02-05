@@ -70,7 +70,9 @@ export default function Home() {
                 <div>
                   <div className="mt-4">
                     <Tabs.Content value="balances">
-                      <Balances />
+                      <Balances
+                        rootOrgId={process.env.PUBLIC_TURNKEY_ORGANIZATION_ID!}
+                      />
                     </Tabs.Content>
                     <Tabs.Content value="swap">
                       <Swap />

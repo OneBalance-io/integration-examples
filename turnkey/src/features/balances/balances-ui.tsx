@@ -10,7 +10,7 @@ import { CreateBTCWalletUI } from "../onebalance-account/create-btc-wallet-ui";
 import { useTurnkey } from "@turnkey/sdk-react";
 import { useTurnkeyAuth } from "../turnkey/use-turnkey-auth";
 
-export const Balances = () => {
+export const Balances = ({ rootOrgId }: { rootOrgId: string }) => {
   const balancesQuery = useBalances();
   const { data: account } = useOneBalanceAccountAddress();
   const [btcWallet, btcAddress, createBTCWallet] = useBTCAccount();
@@ -39,6 +39,7 @@ export const Balances = () => {
               </p>
             ) : (
               <CreateBTCWalletUI
+                rootOrgId={rootOrgId}
                 onSubmit={async () => {
                   if (!user) return;
 
