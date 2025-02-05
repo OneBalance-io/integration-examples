@@ -31,6 +31,9 @@ export const useBalances = () => {
                     address: address.address,
                     apiKey,
                     apiUrl,
+                  }).catch((error) => {
+                    console.error("Failed to fetch BTC balance", error);
+                    return undefined;
                   }),
                 ]
               : []),
