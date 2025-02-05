@@ -1,8 +1,8 @@
 "use client";
-import { useState } from "react";
+import { useTurnkey } from "@turnkey/sdk-react";
 import { useTurnkeyAuth } from "../turnkey/use-turnkey-auth";
 import { useBTCAccount } from "./use-btc-account";
-import { useTurnkey } from "@turnkey/sdk-react";
+import { useRecoverBTCWallet } from "../turnkey/use-recover-btc-wallet";
 
 export const BTCWalletUI = () => {
   const { passkeyClient } = useTurnkey();
@@ -65,7 +65,7 @@ export const CreateBTCWalletUI = ({
   onSubmit: () => void;
   rootOrgId: string;
 }) => {
-  const { btcLogin } = useTurnkeyAuth();
+  const { btcLogin } = useRecoverBTCWallet();
 
   return (
     <div className="p-5 text-left w-1/2 border border-surface-level-2 rounded-r-xl flex flex-col gap-2">

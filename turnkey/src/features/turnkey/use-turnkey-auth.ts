@@ -1,8 +1,7 @@
+"use client";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useTurnkey } from "@turnkey/sdk-react";
 import { queryClient } from "../react-query";
-import { useEnvironment } from "../environment/environment";
-import { usePersistedBTCWallet } from "../onebalance-account/use-btc-account";
 
 type TurnkeyBrowserSDK = NonNullable<ReturnType<typeof useTurnkey>["turnkey"]>;
 export type TurnkeyPasskeyClient = NonNullable<
@@ -20,7 +19,6 @@ export const useTurnkeyAuth = () => {
       refetch();
     },
   });
-  const [, setBTCWallet] = usePersistedBTCWallet();
 
   const {
     data: user,
@@ -42,35 +40,6 @@ export const useTurnkeyAuth = () => {
         refetch();
         return result;
       });
-    },
-  });
-
-  const { mutate: btcLogin } = useMutation({
-    mutationFn: async ({ rootOrgId }: { rootOrgId: string }) => {
-      return turnkey
-        ?.passkeyClient()
-        .getWhoami({
-          organizationId: rootOrgId,
-        })
-        .then((result) => {
-          return turnkey
-            ?.passkeyClient()
-            .getWallets({
-              organizationId: result.organizationId,
-            })
-            .then((wallets) => {
-              return [wallets, result] as const;
-            });
-        })
-        .then(([{ wallets }, { organizationId }]) => {
-          if (!wallets[0].walletName.toLowerCase().includes("btc wallet"))
-            return;
-
-          setBTCWallet({
-            walletId: wallets[0].walletId,
-            organizationId,
-          });
-        });
     },
   });
 
@@ -102,6 +71,5 @@ export const useTurnkeyAuth = () => {
     isLoginPending,
     isUserLoading,
     refreshAuthStatus: refetch,
-    btcLogin,
   };
 };
