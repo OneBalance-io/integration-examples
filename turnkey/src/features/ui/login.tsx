@@ -82,7 +82,7 @@ export const Login = () => {
       <div className="flex justify-center mx-auto flex-1">
         <div className="w-40 pt-14">
           <Image
-            src="/onebalance.png"
+            src="/onebalance_btc.png"
             width={327}
             height={56}
             alt="OneBalance"
