@@ -14,6 +14,6 @@ export const useTransactionStatus = ({
     queryFn: quoteId
       ? () => fetchTransactionStatus({ quoteId, apiKey, apiUrl })
       : skipToken,
-    refetchInterval: 5_000,
+    refetchInterval: 1_000,
   });
 };
