@@ -48,7 +48,6 @@ export const createSubOrganization = async (
     rootUsers: [
       {
         userName,
-        userEmail: email,
         apiKeys: [],
         authenticators: [
           {
