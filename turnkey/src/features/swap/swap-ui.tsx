@@ -69,6 +69,11 @@ const SwapForm = ({
     (balance) => balance.aggregatedAssetId === toAssetId
   )!;
 
+  useEffect(() => {
+    // reset amount when fromAssetId changes
+    setAmount("");
+  }, [fromAssetId]);
+
   const amountAsBigInt = useMemo(() => {
     if (!amount) return BigInt(0);
 
@@ -158,6 +163,28 @@ const SwapForm = ({
         asset={fromAsset!}
         setAssetId={setFromAssetId}
         assets={fromAssets}
+        onMax={
+          fromAssetBalance.balance
+            ? () => {
+                if (!fromAssetBalance.balance) return;
+
+                if (fromAssetId === ("BTC" as any)) {
+                  const btcMinusFee =
+                    BigInt(fromAssetBalance.balance) - BigInt(1000);
+                  setAmount(
+                    formatUnits(btcMinusFee, fromAssetBalance.decimals)
+                  );
+                } else {
+                  setAmount(
+                    formatUnits(
+                      BigInt(fromAssetBalance.balance),
+                      fromAssetBalance.decimals
+                    )
+                  );
+                }
+              }
+            : undefined
+        }
         selectProps={{
           id: "from",
           name: "from",

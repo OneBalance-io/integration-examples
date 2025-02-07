@@ -11,6 +11,7 @@ export const TokenInput = ({
   selectProps,
   inputProps,
   errorMessage,
+  onMax,
 }: {
   balance: {
     amount: bigint;
@@ -29,6 +30,7 @@ export const TokenInput = ({
   selectProps?: React.HTMLProps<HTMLSelectElement>;
   inputProps?: React.HTMLProps<HTMLInputElement>;
   errorMessage?: string;
+  onMax?: () => void;
 }) => {
   return (
     <div>
@@ -51,22 +53,36 @@ export const TokenInput = ({
           </div>
         </div>
 
-        <div className="absolute lg:relative top-16 right-0 lg:right-auto lg:top-0 flex items-center gap-4">
-          <select
-            value={asset.aggregatedAssetId}
-            onChange={(event) => setAssetId(event.target.value as AssetId)}
-            className="px-4 rounded-full bg-surface-level-4 h-10 text-center"
-            {...selectProps}
-          >
-            {assets.map((asset) => (
-              <option
-                key={asset.aggregatedAssetId}
-                value={asset.aggregatedAssetId}
+        <div className="flex items-center">
+          {onMax ? (
+            <div className="px-4 py-5">
+              <button
+                type="button"
+                className="lowercase bg-surface-level-4 py-2.5 px-5 rounded-full focusable text-sm"
+                onClick={onMax}
               >
-                {asset.symbol}
-              </option>
-            ))}
-          </select>
+                Max
+              </button>
+            </div>
+          ) : null}
+
+          <div className="absolute lg:relative top-16 right-0 lg:right-auto lg:top-0 flex items-center gap-4">
+            <select
+              value={asset.aggregatedAssetId}
+              onChange={(event) => setAssetId(event.target.value as AssetId)}
+              className="px-4 rounded-full bg-surface-level-4 h-10 text-center"
+              {...selectProps}
+            >
+              {assets.map((asset) => (
+                <option
+                  key={asset.aggregatedAssetId}
+                  value={asset.aggregatedAssetId}
+                >
+                  {asset.symbol}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
       </div>
       {errorMessage ? (

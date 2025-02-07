@@ -95,10 +95,6 @@ export const signPSBTWithTurnkey =
       }
     );
 
-    console.log({
-      executionResult,
-    });
-
     return executionResult;
   };
 
