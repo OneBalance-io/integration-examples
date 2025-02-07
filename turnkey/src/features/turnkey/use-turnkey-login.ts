@@ -33,7 +33,7 @@ export const useTurnkeyLogin = () => {
         setBtcOrgId("null");
       }
       toast.dismiss();
-      setIsWarningModalOpen(true);
+      // setIsWarningModalOpen(true);
     },
   });
 
