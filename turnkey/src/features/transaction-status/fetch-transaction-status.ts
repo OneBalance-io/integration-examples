@@ -28,10 +28,28 @@ export const fetchTransactionStatus = async ({
           _tag: "TransactionStatus",
           ...data,
         };
-      } else {
-        return {
-          _tag: "Empty",
-        };
       }
+      return {
+        _tag: "Empty",
+      };
+    })
+    .then((data: TransactionStatus) => {
+      if (data._tag === "Empty") {
+        return data;
+      }
+
+      data.originChainOperations.forEach((op) => {
+        if (op.chainId === 8253038) {
+          op.explorerUrl = `https://btcscan.org/tx/${op.hash}`;
+        }
+      });
+
+      data.destinationChainOperations.forEach((op) => {
+        if (op.chainId === 8253038) {
+          op.explorerUrl = `https://btcscan.org/tx/${op.hash}`;
+        }
+      });
+
+      return data;
     });
 };

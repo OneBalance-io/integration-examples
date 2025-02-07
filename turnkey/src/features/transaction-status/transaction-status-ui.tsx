@@ -1,3 +1,4 @@
+import { ExternalLink } from "lucide-react";
 import { useTransactionStatus } from "./use-transaction-status";
 
 export const TransactionStatusUI = ({
@@ -76,10 +77,15 @@ export const TransactionStatusUI = ({
             <ul>
               {transactionStatusQuery.data.originChainOperations.map(
                 (operation) => (
-                  <li key={operation.hash}>
-                    <a href={operation.explorerUrl} target="_blank">
+                  <li key={operation.hash} className="flex items-center gap-2">
+                    <a
+                      href={operation.explorerUrl}
+                      target="_blank"
+                      className="underline underline-offset-4"
+                    >
                       <code>{operation.hash}</code>
                     </a>
+                    <ExternalLink />
                   </li>
                 )
               )}
@@ -97,10 +103,15 @@ export const TransactionStatusUI = ({
             <ul>
               {transactionStatusQuery.data.destinationChainOperations.map(
                 (operation) => (
-                  <li key={operation.hash}>
-                    <a href={operation.explorerUrl} target="_blank">
+                  <li key={operation.hash} className="flex items-center gap-2">
+                    <a
+                      href={operation.explorerUrl}
+                      target="_blank"
+                      className="underline underline-offset-4"
+                    >
                       <code>{operation.hash}</code>
                     </a>
+                    <ExternalLink />
                   </li>
                 )
               )}
