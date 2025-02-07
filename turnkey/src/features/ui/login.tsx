@@ -128,10 +128,21 @@ export const Login = () => {
           </div>
         </ClientOnly>
 
+        <div className="text-center text-sm">
+          <a
+            target="_blank"
+            href="https://www.onebalance.io/post/onebalance-toolkit-bitcoin"
+            className="underline underline-offset-4"
+          >
+            Learn more about Bitcoin in the OneBalance Toolkit
+          </a>
+        </div>
         <div>
           <p className="mt-4 text-gray text-sm text-center flex-col items-center flex gap-2 justify-center">
             <span>This is a demo app - please use with care.</span>
-            <span className="underline">Transactions are capped at $500.</span>
+            <span className="underline underline-offset-4">
+              Transactions are capped at $500.
+            </span>
           </p>
         </div>
       </div>

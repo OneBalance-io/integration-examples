@@ -99,10 +99,20 @@ export const Balances = ({ rootOrgId }: { rootOrgId: string }) => {
           )}
         </Tabs.List>
 
-        <p className="text-sm text-gray text-center mb-4">
+        <p className="text-sm text-gray text-center mb-2 pt-2">
           This is a demo app, please use with care. Please do not deposit more
           than $500.
         </p>
+
+        <div className="text-center text-sm">
+          <a
+            target="_blank"
+            href="https://www.onebalance.io/post/onebalance-toolkit-bitcoin"
+            className="underline underline-offset-4"
+          >
+            Learn more about Bitcoin in the OneBalance Toolkit
+          </a>
+        </div>
 
         <Tabs.Content value="evm">
           {balancesQuery.status === "success" &&
