@@ -35,7 +35,7 @@ export const TokenInput = ({
   return (
     <div>
       <div
-        className={`flex relative gap-1 lg:gap-3 h-10 lg:h-20 bg-surface-level-2 items-center rounded-xl py-4 px-6 border ${
+        className={`flex relative gap-1 lg:gap-3 h-20 bg-surface-level-2 items-center rounded-xl py-4 px-6 border ${
           errorMessage ? "border-destructive" : "border-surface-level-4"
         }`}
       >
@@ -66,7 +66,7 @@ export const TokenInput = ({
             </div>
           ) : null}
 
-          <div className="absolute lg:relative top-16 right-0 lg:right-auto lg:top-0 flex items-center gap-4">
+          <div className="relative flex items-center gap-4">
             <select
               value={asset.aggregatedAssetId}
               onChange={(event) => setAssetId(event.target.value as AssetId)}

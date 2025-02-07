@@ -38,7 +38,7 @@ export const Transfer = () => {
   const chainsQuery = useSupportedChains();
 
   return (
-    <div>
+    <div className="px-2 pb-10">
       <h2 className="text-5xl flex flex-col">
         <span>Simple transfer,</span>
         <span className="text-gray">as it should be</span>
@@ -46,7 +46,9 @@ export const Transfer = () => {
 
       {balancesQuery.status === "pending" ||
       chainsQuery.status === "pending" ? (
-        <p className="animate-pulse text-white/50">Loading your account...</p>
+        <p className="animate-pulse text-white/50 mt-14">
+          Loading your account...
+        </p>
       ) : null}
       {balancesQuery.status === "success" &&
       chainsQuery.status === "success" ? (
@@ -211,10 +213,14 @@ const TransferForm = ({
           })}
       </select>
 
-      <div>
+      <div className="mt-20">
+        <p className="text-sm text-gray text-center mb-4">
+          This is a demo app. Transactions are capped at $500
+        </p>
+
         <button
           type="submit"
-          className="h-20 rounded-[100px] py-[30px] px-10 text-base bg-brand-orange text-brand-orange-foreground hover:bg-brand-orange-lighten-20 mt-20 w-full disabled:opacity-50 disabled:cursor-not-allowed justify-center flex"
+          className="h-20 rounded-[100px] py-[30px] px-10 text-base bg-brand-orange text-brand-orange-foreground hover:bg-brand-orange-lighten-20 w-full disabled:opacity-50 disabled:cursor-not-allowed justify-center flex"
           disabled={
             mutation.status === "pending" ||
             !!balanceError ||

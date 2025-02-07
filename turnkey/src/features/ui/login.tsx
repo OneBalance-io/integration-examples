@@ -94,7 +94,7 @@ export const Login = () => {
           Welcome to OneBalance Bitcoin demo app
         </h1>
 
-        <div className="flex gap-4 justify-center">
+        <div className="flex gap-4 justify-center flex-col sm:flex-row">
           <TooltipProvider delayDuration={200}>
             <Tooltip>
               <TooltipTrigger asChild>
@@ -127,9 +127,9 @@ export const Login = () => {
         </div>
 
         <div>
-          <p className="mt-4 text-gray text-sm text-center items-center flex gap-2 justify-center">
-            This is a demo app - please use with care.{" "}
-            <span className="underline">Interactions are capped at $500.</span>
+          <p className="mt-4 text-gray text-sm text-center flex-col items-center flex gap-2 justify-center">
+            <span>This is a demo app - please use with care.</span>
+            <span className="underline">Transactions are capped at $500.</span>
           </p>
         </div>
       </div>

@@ -22,14 +22,14 @@ export const Balances = ({ rootOrgId }: { rootOrgId: string }) => {
       <h1 className="text-5xl">Welcome</h1>
 
       <Tabs.Root defaultValue="evm" className="max-w-2xl mx-auto mt-8">
-        <Tabs.List className="flex">
+        <Tabs.List className="flex flex-col sm:flex-row px-2">
           <TabTrigger
             value="evm"
             title="EVM Balance"
             address={account?.predictedAddress}
             fiatBalance={balancesQuery.data?.balances.totalBalance.fiatValue}
             isLoading={balancesQuery.status === "pending"}
-            className="rounded-l-xl"
+            className="sm:rounded-l-xl rounded-t-xl sm:rounded-tr-none"
           />
 
           {btcWallet._tag === "NoWallet" ? (
@@ -82,7 +82,7 @@ export const Balances = ({ rootOrgId }: { rootOrgId: string }) => {
               title="BTC Balance"
               address={btcAddress?.address}
               fiatBalance={balancesQuery.data?.btcBalance?.fiatValue}
-              className="rounded-r-xl"
+              className="sm:rounded-r-xl rounded-b-xl sm:rounded-bl-none"
               isLoading={balancesQuery.status === "pending"}
               disabled
             />
@@ -92,7 +92,7 @@ export const Balances = ({ rootOrgId }: { rootOrgId: string }) => {
               title="BTC Balance"
               address={undefined}
               fiatBalance={undefined}
-              className="rounded-r-xl"
+              className="sm:rounded-r-xl rounded-b-xl sm:rounded-bl-none"
               isLoading={balancesQuery.status === "pending"}
               disabled
             />
@@ -168,7 +168,7 @@ const TabTrigger = (
   return (
     <Tabs.Trigger
       {...rest}
-      className={`flex aria-selected:bg-surface-level-2 p-5 text-left w-1/2 border border-surface-level-2 ${
+      className={`flex aria-selected:bg-surface-level-2 p-5 text-left w-full sm:w-1/2 border border-surface-level-2 ${
         props.className ?? ""
       }`}
       asChild

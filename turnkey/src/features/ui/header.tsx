@@ -13,7 +13,7 @@ export const Header = ({ className }: { className?: string }) => {
   return (
     <header
       className={cn(
-        "p-4 max-w-screen-xl mx-auto flex w-full items-center gap-4",
+        "p-4 max-w-screen-xl mx-auto flex w-full items-center gap-4 flex-col sm:flex-row",
         className
       )}
     >

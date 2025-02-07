@@ -12,14 +12,16 @@ export const Swap = () => {
   const balancesQuery = useBalances();
 
   return (
-    <div className="pb-10">
+    <div className="pb-10 px-2">
       <h1 className="text-5xl flex flex-col">
         <span>Just swap it,</span>
         <span className="text-gray">forget the chains</span>
       </h1>
 
       {balancesQuery.status === "pending" ? (
-        <p className="animate-pulse text-white/50">Loading your account...</p>
+        <p className="animate-pulse text-white/50 mt-14">
+          Loading your account...
+        </p>
       ) : null}
       {balancesQuery.status === "success" ? (
         <SwapForm balances={balancesQuery.data} />
@@ -268,10 +270,18 @@ const SwapForm = ({
         }}
       />
 
-      <div>
+      <div className="mt-20">
+        <p className="text-sm text-gray text-center mb-4">
+          {fromAsset?.aggregatedAssetId === "BTC"
+            ? "This is a BTC swap, make sure to use your [BTC] Passkey when signing"
+            : "This is an EVM network swap, make sure to use your [MAIN] Passkey when signing"}
+        </p>
+        <p className="text-sm text-gray text-center mb-4">
+          This is a demo app. Transactions are capped at $500
+        </p>
         <button
           type="submit"
-          className="h-20 rounded-[100px] py-[30px] px-10 text-base bg-brand-orange text-brand-orange-foreground hover:bg-brand-orange-lighten-20 mt-20 w-full disabled:opacity-50 disabled:cursor-not-allowed justify-center flex"
+          className="h-20 rounded-[100px] py-[30px] px-10 text-base bg-brand-orange text-brand-orange-foreground hover:bg-brand-orange-lighten-20 w-full disabled:opacity-50 disabled:cursor-not-allowed justify-center flex"
           disabled={
             swapQuoteQuery.isFetching ||
             !!balanceError ||
