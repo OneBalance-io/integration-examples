@@ -12,10 +12,6 @@ export type TurnkeyPasskeyClient = NonNullable<
 
 export const useTurnkeyAuth = () => {
   const { turnkey, passkeyClient } = useTurnkey();
-  const {
-    evm: [previousEvmOrgId, setEvmOrgId],
-    btc: [, setBtcOrgId],
-  } = usePersistedBTCWallet();
   const { mutate: logout } = useMutation({
     mutationFn: (_turnkey: TurnkeyBrowserSDK) => {
       return _turnkey.logoutUser();
@@ -37,27 +33,6 @@ export const useTurnkeyAuth = () => {
       return result ?? null;
     },
     enabled: !!turnkey,
-  });
-
-  const { mutate: login, isPending: isLoginPending } = useMutation({
-    mutationFn: async () => {
-      const loginResult = await passkeyClient!.login().then((result) => {
-        queryClient.invalidateQueries({ queryKey: "authenticated" });
-        refetch();
-        return result;
-      });
-      return loginResult;
-    },
-    onSuccess: (loginResult) => {
-      setEvmOrgId({ evmOrgId: loginResult.organizationId });
-      if (
-        previousEvmOrgId &&
-        previousEvmOrgId.evmOrgId !== loginResult.organizationId
-      ) {
-        setBtcOrgId("null");
-      }
-      toast.dismiss();
-    },
   });
 
   const { data: wallets } = useQuery({
@@ -83,9 +58,7 @@ export const useTurnkeyAuth = () => {
     logout: turnkey ? () => logout(turnkey) : () => Promise.resolve(),
     authenticated: !!user,
     user,
-    login,
     wallets: wallets,
-    isLoginPending,
     isUserLoading,
     refreshAuthStatus: refetch,
   };

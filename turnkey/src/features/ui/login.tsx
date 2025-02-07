@@ -1,21 +1,16 @@
 "use client";
-import { useTurnkey } from "@turnkey/sdk-react";
-import { useTurnkeyAuth } from "../turnkey/use-turnkey-auth";
 import { createSubOrganization } from "@/app/actions";
+import { useTurnkey } from "@turnkey/sdk-react";
 import humanId from "human-id";
 import Image from "next/image";
 import { startTransition, useActionState, useEffect, useState } from "react";
 import { toast } from "sonner";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { useTurnkeyAuth } from "../turnkey/use-turnkey-auth";
+import { ClientLogin } from "./client-login";
+import { ClientOnly } from "./client-only";
 
 export const Login = () => {
-  const { login, isLoginPending, isUserLoading, refreshAuthStatus } =
-    useTurnkeyAuth();
+  const { isUserLoading, refreshAuthStatus } = useTurnkeyAuth();
   const { passkeyClient } = useTurnkey();
   const [isHydrated, setIsHydrated] = useState(false);
   const [createSubOrganizationResult, createSubOrganizationAction, isPending] =
@@ -94,8 +89,14 @@ export const Login = () => {
           Welcome to OneBalance Bitcoin demo app
         </h1>
 
-        <div className="flex gap-4 justify-center flex-col sm:flex-row">
-          <TooltipProvider delayDuration={200}>
+        <ClientOnly>
+          <div className="flex gap-4 justify-center flex-col sm:flex-row">
+            <ClientLogin
+              onClick={() => createSubOrg()}
+              isPending={isPending}
+              isUserLoading={isUserLoading}
+            />
+            {/* <TooltipProvider delayDuration={200}>
             <Tooltip>
               <TooltipTrigger asChild>
                 <button
@@ -123,8 +124,9 @@ export const Login = () => {
             disabled={isPending}
           >
             {isPending ? "Signing up..." : "Signup"}
-          </button>
-        </div>
+          </button> */}
+          </div>
+        </ClientOnly>
 
         <div>
           <p className="mt-4 text-gray text-sm text-center flex-col items-center flex gap-2 justify-center">
