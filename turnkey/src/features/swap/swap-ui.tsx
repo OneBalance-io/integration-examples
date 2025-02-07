@@ -118,7 +118,9 @@ const SwapForm = ({
 
   const toAssets = useMemo(() => {
     return fromAssets.filter(
-      (asset) => asset.aggregatedAssetId !== fromAssetId
+      (asset) =>
+        asset.aggregatedAssetId !== fromAssetId &&
+        asset.aggregatedAssetId !== "BTC"
     );
   }, [fromAssetId, fromAssets]);
 

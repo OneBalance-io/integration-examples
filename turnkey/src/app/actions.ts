@@ -31,10 +31,17 @@ type TAttestation = {
 };
 
 export const createSubOrganization = async (
-  email: string | undefined,
-  credential: string,
-  attestation: TAttestation,
-  userName: string
+  preState: any,
+  {
+    credential,
+    attestation,
+    userName,
+  }: {
+    email: string | undefined;
+    credential: string;
+    attestation: TAttestation;
+    userName: string;
+  }
 ) => {
   const createSubOrgResponse = await turnkeyServer.createSubOrganization({
     subOrganizationName: `User Sub Org - ${userName}`,

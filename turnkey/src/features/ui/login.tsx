@@ -4,17 +4,37 @@ import { useTurnkeyAuth } from "../turnkey/use-turnkey-auth";
 import { createSubOrganization } from "@/app/actions";
 import humanId from "human-id";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { startTransition, useActionState, useEffect, useState } from "react";
+import { toast } from "sonner";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 export const Login = () => {
   const { login, isLoginPending, isUserLoading, refreshAuthStatus } =
     useTurnkeyAuth();
   const { passkeyClient } = useTurnkey();
   const [isHydrated, setIsHydrated] = useState(false);
+  const [createSubOrganizationResult, createSubOrganizationAction, isPending] =
+    useActionState(createSubOrganization, null);
 
   useEffect(() => {
     setIsHydrated(true);
   }, []);
+
+  useEffect(() => {
+    if (createSubOrganizationResult) {
+      refreshAuthStatus();
+
+      toast.success("Account created successfully. You can now log in.", {
+        dismissible: true,
+        duration: Infinity,
+      });
+    }
+  }, [createSubOrganizationResult]);
 
   const createNewPasskey = async () => {
     const userName = humanId({
@@ -28,7 +48,7 @@ export const Login = () => {
           name: "Wallet Passkey",
         },
         user: {
-          name: userName,
+          name: `[MAIN] ${userName}`,
         },
       },
     });
@@ -43,13 +63,14 @@ export const Login = () => {
       userName,
     } = await createNewPasskey();
 
-    const createSubOrganizationResponse = await createSubOrganization(
-      undefined,
-      challenge,
-      attestation,
-      userName
-    );
-    refreshAuthStatus();
+    startTransition(() => {
+      createSubOrganizationAction({
+        email: undefined,
+        credential: challenge,
+        attestation,
+        userName,
+      });
+    });
   };
 
   return (
@@ -74,20 +95,34 @@ export const Login = () => {
         </h1>
 
         <div className="flex gap-4 justify-center">
-          <button
-            onClick={() => login()}
-            className="h-20 py-[30px] px-10 text-base bg-brand-orange rounded-full text-black"
-          >
-            {isLoginPending || isUserLoading
-              ? "Logging in..."
-              : "Log in with Passkey"}
-          </button>
+          <TooltipProvider delayDuration={200}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  onClick={() => login()}
+                  className="h-20 py-[30px] px-10 text-base bg-brand-orange rounded-full text-black"
+                >
+                  {isLoginPending || isUserLoading
+                    ? "Logging in..."
+                    : "Log in with Passkey"}
+                </button>
+              </TooltipTrigger>
+
+              <TooltipContent>
+                <p className="flex flex-col">
+                  <span>Log in with your previously created Passkey.</span>
+                  <span className="text-xs">Prefixed with [MAIN]</span>
+                </p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
 
           <button
             onClick={() => createSubOrg()}
             className="bg-transparent border-2 border-surface-level-4 text-white disabled:text-surface-level-4 py-4 px-10 rounded-full"
+            disabled={isPending}
           >
-            Signup
+            {isPending ? "Signing up..." : "Signup"}
           </button>
         </div>
       </div>

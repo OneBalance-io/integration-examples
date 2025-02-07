@@ -9,6 +9,7 @@ import { Header } from "@/features/ui/header";
 import { Login } from "@/features/ui/login";
 import * as Tabs from "@radix-ui/react-tabs";
 import localFont from "next/font/local";
+import { Toaster } from "sonner";
 
 const Pangram = localFont({
   src: [
@@ -90,6 +91,7 @@ export default function Home() {
           </Authenticated>
         </main>
       </Tabs.Root>
+      <Toaster />
     </EnvironmentProvider>
   );
 }

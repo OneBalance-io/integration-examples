@@ -2,6 +2,7 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useTurnkey } from "@turnkey/sdk-react";
 import { queryClient } from "../react-query";
+import { toast } from "sonner";
 
 type TurnkeyBrowserSDK = NonNullable<ReturnType<typeof useTurnkey>["turnkey"]>;
 export type TurnkeyPasskeyClient = NonNullable<
@@ -40,6 +41,9 @@ export const useTurnkeyAuth = () => {
         refetch();
         return result;
       });
+    },
+    onSuccess: () => {
+      toast.dismiss();
     },
   });
 
