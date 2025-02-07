@@ -19,9 +19,11 @@ import { TurnkeyPasskeyClient } from "../turnkey/use-turnkey-auth";
 import { fetchSwapBTCQuote } from "./fetch-swap-btc-quote";
 import { fetchSwapQuote } from "./fetch-swap-quote";
 
-export const useSwap = () => {
+export const useSwap = ({ onSuccess }: { onSuccess?: () => void }) => {
   const balancesQuery = useBalances();
-  const swapMutation = useSwapMutation();
+  const swapMutation = useSwapMutation({
+    onSuccess,
+  });
   const embeddedWallet = useEmbeddedWallet();
   const oneBalanceAccountAddress = useOneBalanceAccountAddress();
 
@@ -72,6 +74,7 @@ export const useSwapQuote = (
       request?.toAggregatedAssetId,
       embeddedWallet?.address,
       accountAddress?.predictedAddress,
+      Date.now() - (Date.now() % 30_000),
     ],
     queryFn: async () => {
       if (!request) throw new Error("No swap request provided");
@@ -136,7 +139,7 @@ export const useSwapQuote = (
   });
 };
 
-const useSwapMutation = () => {
+const useSwapMutation = ({ onSuccess }: { onSuccess?: () => void }) => {
   const btcData = useBTCAccount();
   const embeddedWallet = useEmbeddedWallet();
   const { passkeyClient } = useTurnkey();
@@ -164,6 +167,7 @@ const useSwapMutation = () => {
         apiUrl,
       })(quote);
     },
+    onSuccess,
   });
 };
 

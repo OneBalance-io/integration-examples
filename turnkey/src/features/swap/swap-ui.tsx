@@ -7,6 +7,7 @@ import { TokenInput } from "../input/input";
 import { useBTCAccount } from "../onebalance-account/use-btc-account";
 import { TransactionStatusUI } from "../transaction-status/transaction-status-ui";
 import { useSwap, useSwapQuote } from "./use-swap";
+import { queryClient } from "../react-query";
 
 export const Swap = () => {
   const balancesQuery = useBalances();
@@ -35,7 +36,6 @@ const SwapForm = ({
 }: {
   balances: NonNullable<ReturnType<typeof useBalances>["data"]>;
 }) => {
-  const { submit, mutation } = useSwap();
   const [fromAssetId, setFromAssetId] = useState<AssetId>(
     balances.btcBalance
       ? ("BTC" as AssetId)
@@ -123,6 +123,13 @@ const SwapForm = ({
     amount: amountAsBigInt,
     fromAggregatedAssetId: fromAssetId,
     toAggregatedAssetId: toAssetId,
+  });
+  const { submit, mutation } = useSwap({
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["swapQuote"],
+      });
+    },
   });
 
   useEffect(() => {
