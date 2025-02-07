@@ -99,6 +99,11 @@ export const Balances = ({ rootOrgId }: { rootOrgId: string }) => {
           )}
         </Tabs.List>
 
+        <p className="text-sm text-gray text-center mb-4">
+          This is a demo app, please use with care. Please do not deposit more
+          than $500.
+        </p>
+
         <Tabs.Content value="evm">
           {balancesQuery.status === "success" &&
           balancesQuery.data.balances.balanceByAsset.filter(

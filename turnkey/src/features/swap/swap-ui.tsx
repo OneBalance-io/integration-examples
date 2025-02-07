@@ -146,11 +146,20 @@ const SwapForm = ({
   }, [btcAccount, balances.assets]);
 
   const toAssets = useMemo(() => {
-    return fromAssets.filter(
-      (asset) =>
-        asset.aggregatedAssetId !== fromAssetId &&
-        asset.aggregatedAssetId !== "BTC"
-    );
+    return fromAssets.filter((asset) => {
+      const isBTC = asset.aggregatedAssetId === "BTC";
+      const isFromAsset = asset.aggregatedAssetId === fromAssetId;
+      const isBTCFromAsset = fromAsset?.aggregatedAssetId === "BTC";
+
+      // if BTC is the fromAsset, disable AVAX, USDC, APE
+      const disableUSDC = isBTCFromAsset && asset.symbol === "USDC";
+      const disableAVAX = isBTCFromAsset && asset.symbol === "AVAX";
+      const disableAPE = isBTCFromAsset && asset.symbol === "APE";
+
+      return (
+        !isFromAsset && !isBTC && !disableUSDC && !disableAVAX && !disableAPE
+      );
+    });
   }, [fromAssetId, fromAssets]);
 
   if (mutation.status === "success") {
@@ -277,7 +286,7 @@ const SwapForm = ({
             : "This is an EVM network swap, make sure to use your [MAIN] Passkey when signing"}
         </p>
         <p className="text-sm text-gray text-center mb-4">
-          This is a demo app. Transactions are capped at $500
+          This is a demo app. Transactions are capped at $500.
         </p>
         <button
           type="submit"
