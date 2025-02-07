@@ -5,8 +5,7 @@ import { useTurnkeyAuth } from "../turnkey/use-turnkey-auth";
 import { fetchPredictAddress } from "./fetch-predict-address";
 import { useEnvironment } from "../environment/environment";
 
-// below is a random ETH address, please change this as per your requirements.
-export const ADMIN_ADDRESS = "0xc162a3cE45ad151eeCd0a5532D6E489D034aB3B8";
+export const ADMIN_ADDRESS = "0x771d3303f888E75bD24634967196b5ae87C7819D";
 
 export const useEmbeddedWallet = () => {
   const { wallets } = useTurnkeyAuth();
