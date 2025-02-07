@@ -3,14 +3,20 @@ import Image from "next/image";
 import { useTurnkeyAuth } from "../turnkey/use-turnkey-auth";
 import { TabTrigger } from "../tabs/tab";
 import * as Tabs from "@radix-ui/react-tabs";
+import { cn } from "@/lib/utils";
 
-export const Header = () => {
+export const Header = ({ className }: { className?: string }) => {
   const { authenticated, logout } = useTurnkeyAuth();
 
   if (!authenticated) return null;
 
   return (
-    <header className="p-4 max-w-screen-xl mx-auto flex w-full items-center gap-4">
+    <header
+      className={cn(
+        "p-4 max-w-screen-xl mx-auto flex w-full items-center gap-4",
+        className
+      )}
+    >
       <div className="flex-1">
         <div className="max-w-40">
           <Image

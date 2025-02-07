@@ -27,7 +27,9 @@ const useCreateBTCAccount = ({
 };
 
 const useBTCWalletAddress = () => {
-  const [btcWallet] = usePersistedBTCWallet();
+  const {
+    btc: [btcWallet],
+  } = usePersistedBTCWallet();
   const { apiKey, apiUrl } = useEnvironment();
 
   return useQuery({
@@ -55,7 +57,9 @@ const useBTCWalletAddress = () => {
 };
 
 export const useBTCAccount = () => {
-  const [btcWallet, setBTCWallet] = usePersistedBTCWallet();
+  const {
+    btc: [btcWallet, setBTCWallet],
+  } = usePersistedBTCWallet();
   const { data: btcWalletAddress } = useBTCWalletAddress();
   const createMutation = useCreateBTCAccount({
     onSuccess: (data) => {

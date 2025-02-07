@@ -61,7 +61,7 @@ export default function Home() {
         defaultValue="balances"
         className="flex-1 flex flex-col items-center"
       >
-        <Header />
+        <Header className={Pangram.className} />
         <main
           className={`max-w-screen-xl ${Pangram.className} flex-1 flex w-full`}
         >

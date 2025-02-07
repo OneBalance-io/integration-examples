@@ -5,7 +5,9 @@ import { usePersistedBTCWallet } from "../onebalance-account/use-persisted-btc-w
 
 export const useRecoverBTCWallet = () => {
   const { turnkey } = useTurnkey();
-  const [, setBTCWallet] = usePersistedBTCWallet();
+  const {
+    btc: [, setBTCWallet],
+  } = usePersistedBTCWallet();
 
   const { mutate: btcLogin } = useMutation({
     mutationFn: async ({ rootOrgId }: { rootOrgId: string }) => {

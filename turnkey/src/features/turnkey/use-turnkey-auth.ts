@@ -3,6 +3,7 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { useTurnkey } from "@turnkey/sdk-react";
 import { queryClient } from "../react-query";
 import { toast } from "sonner";
+import { usePersistedBTCWallet } from "../onebalance-account/use-persisted-btc-wallet";
 
 type TurnkeyBrowserSDK = NonNullable<ReturnType<typeof useTurnkey>["turnkey"]>;
 export type TurnkeyPasskeyClient = NonNullable<
@@ -11,6 +12,10 @@ export type TurnkeyPasskeyClient = NonNullable<
 
 export const useTurnkeyAuth = () => {
   const { turnkey, passkeyClient } = useTurnkey();
+  const {
+    evm: [previousEvmOrgId, setEvmOrgId],
+    btc: [, setBtcOrgId],
+  } = usePersistedBTCWallet();
   const { mutate: logout } = useMutation({
     mutationFn: (_turnkey: TurnkeyBrowserSDK) => {
       return _turnkey.logoutUser();
@@ -41,8 +46,16 @@ export const useTurnkeyAuth = () => {
         refetch();
         return result;
       });
+      return loginResult;
     },
-    onSuccess: () => {
+    onSuccess: (loginResult) => {
+      setEvmOrgId({ evmOrgId: loginResult.organizationId });
+      if (
+        previousEvmOrgId &&
+        previousEvmOrgId.evmOrgId !== loginResult.organizationId
+      ) {
+        setBtcOrgId("null");
+      }
       toast.dismiss();
     },
   });
