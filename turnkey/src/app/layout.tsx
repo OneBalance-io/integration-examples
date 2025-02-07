@@ -2,6 +2,7 @@ import { ReactQueryProvider } from "@/features/react-query";
 import { TurnkeyProvider } from "@turnkey/sdk-react";
 import type { Metadata } from "next";
 import "./globals.css";
+import { WarningDialogProvider } from "@/features/warning-dialog";
 
 export const dynamic = "force-dynamic";
 
@@ -25,7 +26,9 @@ export default function RootLayout({
             defaultOrganizationId: process.env.PUBLIC_TURNKEY_ORGANIZATION_ID!,
           }}
         >
-          <ReactQueryProvider>{children}</ReactQueryProvider>
+          <ReactQueryProvider>
+            <WarningDialogProvider>{children}</WarningDialogProvider>
+          </ReactQueryProvider>
         </TurnkeyProvider>
       </body>
     </html>

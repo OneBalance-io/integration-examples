@@ -4,9 +4,12 @@ import { usePersistedBTCWallet } from "../onebalance-account/use-persisted-btc-w
 import { useMutation } from "@tanstack/react-query";
 import { useTurnkey } from "@turnkey/sdk-react";
 import { queryClient } from "../react-query";
+import { useContext, useState } from "react";
+import { WarningDialogContext } from "../warning-dialog";
 
 export const useTurnkeyLogin = () => {
   const { passkeyClient } = useTurnkey();
+  const { setIsWarningModalOpen } = useContext(WarningDialogContext);
   const {
     evm: [previousEvmOrgId, setEvmOrgId],
     btc: [, setBtcOrgId],
@@ -30,6 +33,7 @@ export const useTurnkeyLogin = () => {
         setBtcOrgId("null");
       }
       toast.dismiss();
+      setIsWarningModalOpen(true);
     },
   });
 

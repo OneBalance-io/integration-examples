@@ -6,8 +6,10 @@ import { OneBalanceAccountRequired } from "@/features/onebalance-account/onebala
 import { Swap } from "@/features/swap/swap-ui";
 import { TransactionHistory } from "@/features/transaction-history/transaction-history-ui";
 import { Transfer } from "@/features/transfer/transfer-ui";
+import { ClientOnly } from "@/features/ui/client-only";
 import { Header } from "@/features/ui/header";
 import { Login } from "@/features/ui/login";
+import { WarningDialog } from "@/features/warning-dialog";
 import * as Tabs from "@radix-ui/react-tabs";
 import { Toaster } from "sonner";
 
@@ -52,6 +54,9 @@ export default function Home() {
         </main>
       </Tabs.Root>
       <Toaster />
+      <ClientOnly>
+        <WarningDialog />
+      </ClientOnly>
     </EnvironmentProvider>
   );
 }
