@@ -87,7 +87,7 @@ export const TokenInput = ({
       </div>
       {errorMessage ? (
         <div className="mt-10 lg:mt-0 min-h-5 pt-2">
-          <p className="text-xs text-destructive h-[1rem] first-letter:uppercase">
+          <p className="text-xs text-destructive h-[1rem] first-letter:uppercase text-left">
             {errorMessage && <>{errorMessage}</>}
           </p>
         </div>

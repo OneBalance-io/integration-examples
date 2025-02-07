@@ -125,6 +125,13 @@ export const Login = () => {
             {isPending ? "Signing up..." : "Signup"}
           </button>
         </div>
+
+        <div>
+          <p className="mt-4 text-gray text-sm text-center items-center flex gap-2 justify-center">
+            This is a demo app - please use with care.{" "}
+            <span className="underline">Interactions are capped at $500.</span>
+          </p>
+        </div>
       </div>
       <div className="flex-1" />
     </div>

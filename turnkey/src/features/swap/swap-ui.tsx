@@ -12,7 +12,7 @@ export const Swap = () => {
   const balancesQuery = useBalances();
 
   return (
-    <div>
+    <div className="pb-10">
       <h1 className="text-5xl flex flex-col">
         <span>Just swap it,</span>
         <span className="text-gray">forget the chains</span>
@@ -57,6 +57,7 @@ const SwapForm = ({
       ? {
           aggregatedAssetId: "BTC" as any,
           balance: balances.btcBalance?.balance ?? 0,
+          fiatValue: balances.btcBalance?.fiatValue ?? 0,
           decimals: 8,
         }
       : balances.balances.balanceByAsset.find(
@@ -89,6 +90,32 @@ const SwapForm = ({
       return BigInt(0);
     }
   }, [amount, fromAssetId, fromAssetBalance.decimals]);
+
+  // Add balance and USD value validation
+  const balanceError = useMemo(() => {
+    if (!amount || !fromAssetBalance.balance) return undefined;
+
+    if (amountAsBigInt > BigInt(fromAssetBalance.balance)) {
+      return "Insufficient balance";
+    }
+
+    // Calculate USD value based on proportion of balance
+    const totalFiatValue = fromAssetBalance.fiatValue ?? 0;
+    const proportion =
+      Number(amountAsBigInt) / Number(fromAssetBalance.balance);
+    const amountFiatValue = totalFiatValue * proportion;
+
+    if (amountFiatValue > 500) {
+      return "Cannot swap more than $500. Please try a smaller amount.";
+    }
+
+    return undefined;
+  }, [
+    amountAsBigInt,
+    fromAssetBalance.balance,
+    fromAssetBalance.fiatValue,
+    amount,
+  ]);
 
   const swapQuoteQuery = useSwapQuote({
     amount: amountAsBigInt,
@@ -145,7 +172,22 @@ const SwapForm = ({
   return (
     <form
       className="flex flex-col gap-4 mt-14 max-w-2xl mx-auto"
-      onSubmit={(event) =>
+      onSubmit={(event) => {
+        // Prevent default form submission
+        event.preventDefault();
+
+        // Return early if any validation fails
+        if (
+          swapQuoteQuery.isFetching ||
+          balanceError ||
+          !amount ||
+          amount === "0" ||
+          !swapQuoteQuery.data
+        ) {
+          return;
+        }
+
+        // Proceed with submission if validation passes
         submit(
           event,
           {
@@ -154,8 +196,8 @@ const SwapForm = ({
             amount: amountAsBigInt,
           },
           swapQuoteQuery.data
-        )
-      }
+        );
+      }}
     >
       <TokenInput
         balance={{
@@ -191,7 +233,7 @@ const SwapForm = ({
           id: "from",
           name: "from",
         }}
-        errorMessage={swapQuoteQuery.error?.message}
+        errorMessage={balanceError || swapQuoteQuery.error?.message}
         inputProps={{
           placeholder: "0.00",
           type: "text",
@@ -230,7 +272,12 @@ const SwapForm = ({
         <button
           type="submit"
           className="h-20 rounded-[100px] py-[30px] px-10 text-base bg-brand-orange text-brand-orange-foreground hover:bg-brand-orange-lighten-20 mt-20 w-full disabled:opacity-50 disabled:cursor-not-allowed justify-center flex"
-          disabled={swapQuoteQuery.isFetching}
+          disabled={
+            swapQuoteQuery.isFetching ||
+            !!balanceError ||
+            !amount ||
+            amount === "0"
+          }
         >
           <span className="flex items-center gap-2">
             {mutation.status === "pending" ? (
