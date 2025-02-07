@@ -28,15 +28,18 @@ export const Balances = ({ rootOrgId }: { rootOrgId: string }) => {
             title="EVM Balance"
             address={account?.predictedAddress}
             fiatBalance={balancesQuery.data?.balances.totalBalance.fiatValue}
+            isLoading={balancesQuery.status === "pending"}
             className="rounded-l-xl"
           />
 
           {btcWallet._tag === "NoWallet" ? (
             createBTCWallet.status === "pending" ? (
-              <p className="animate-pulse flex flex-col gap-1">
-                <span>Creating your BTC wallet</span>
-                <span className="text-sm">Please wait...</span>
-              </p>
+              <div className="flex text-left pl-4 items-center w-1/2">
+                <p className="animate-pulse flex flex-col gap-1">
+                  <span>Creating your BTC wallet</span>
+                  <span className="text-sm">Please wait...</span>
+                </p>
+              </div>
             ) : (
               <CreateBTCWalletUI
                 rootOrgId={rootOrgId}
@@ -80,9 +83,20 @@ export const Balances = ({ rootOrgId }: { rootOrgId: string }) => {
               address={btcAddress?.address}
               fiatBalance={balancesQuery.data?.btcBalance?.fiatValue}
               className="rounded-r-xl"
+              isLoading={balancesQuery.status === "pending"}
               disabled
             />
-          ) : null}
+          ) : (
+            <TabTrigger
+              value="btc"
+              title="BTC Balance"
+              address={undefined}
+              fiatBalance={undefined}
+              className="rounded-r-xl"
+              isLoading={balancesQuery.status === "pending"}
+              disabled
+            />
+          )}
         </Tabs.List>
 
         <Tabs.Content value="evm">
@@ -146,6 +160,7 @@ const TabTrigger = (
     address: string | undefined;
     fiatBalance: number | undefined;
     title: ReactNode;
+    isLoading: boolean;
   }
 ) => {
   const { title, fiatBalance, address, ...rest } = props;
@@ -163,9 +178,13 @@ const TabTrigger = (
         <dl className="flex flex-col gap-4">
           <dt className="text-gray">{props.title}</dt>
           <dd className="text-4xl">
-            {props.fiatBalance !== undefined
-              ? formatUSD(props.fiatBalance)
-              : "..."}
+            {props.fiatBalance !== undefined ? (
+              formatUSD(props.fiatBalance)
+            ) : props.isLoading ? (
+              <span className="animate-pulse text-xs">Loading...</span>
+            ) : (
+              "..."
+            )}
           </dd>
           {props.address ? (
             <div className="flex gap-2 items-center">

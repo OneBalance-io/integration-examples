@@ -2,6 +2,7 @@
 import { useMutation } from "@tanstack/react-query";
 import { useTurnkey } from "@turnkey/sdk-react";
 import { usePersistedBTCWallet } from "../onebalance-account/use-persisted-btc-wallet";
+import { toast } from "sonner";
 
 export const useRecoverBTCWallet = () => {
   const { turnkey } = useTurnkey();
@@ -9,7 +10,7 @@ export const useRecoverBTCWallet = () => {
     btc: [, setBTCWallet],
   } = usePersistedBTCWallet();
 
-  const { mutate: btcLogin } = useMutation({
+  const { mutate: btcLogin, error: btcLoginError } = useMutation({
     mutationFn: async ({ rootOrgId }: { rootOrgId: string }) => {
       return turnkey
         ?.passkeyClient()
@@ -28,13 +29,27 @@ export const useRecoverBTCWallet = () => {
         })
         .then(([{ wallets }, { organizationId }]) => {
           if (!wallets[0].walletName.toLowerCase().includes("btc wallet"))
-            return;
+            throw new Error("BTC wallet not found in Turnkey");
 
           setBTCWallet({
             walletId: wallets[0].walletId,
             organizationId,
           });
         });
+    },
+    onError: (error) => {
+      console.error(error);
+
+      toast.error(
+        <span className="flex flex-col">
+          <span>Failed to recover wallet. Wrong Passkey used.</span>
+          <span>Please try again. Make sure to use your BTC Passkey.</span>
+          <span>Prefixed with [BTC]</span>
+        </span>,
+        {
+          duration: 15_000,
+        }
+      );
     },
   });
 

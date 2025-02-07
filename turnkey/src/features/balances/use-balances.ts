@@ -69,5 +69,6 @@ export const useBalances = () => {
           };
         }
       : skipToken,
+    refetchInterval: 7_500,
   });
 };
