@@ -1,6 +1,7 @@
 import { Authenticated } from "@/features/authenticated";
 import { Balances } from "@/features/balances/balances-ui";
 import { EnvironmentProvider } from "@/features/environment/environment";
+import { Pangram } from "@/features/font";
 import { OneBalanceAccountRequired } from "@/features/onebalance-account/onebalance-account-required";
 import { Swap } from "@/features/swap/swap-ui";
 import { TransactionHistory } from "@/features/transaction-history/transaction-history-ui";
@@ -8,48 +9,7 @@ import { Transfer } from "@/features/transfer/transfer-ui";
 import { Header } from "@/features/ui/header";
 import { Login } from "@/features/ui/login";
 import * as Tabs from "@radix-ui/react-tabs";
-import localFont from "next/font/local";
 import { Toaster } from "sonner";
-
-const Pangram = localFont({
-  src: [
-    {
-      path: "../features/fonts/Pangram-Black-900.woff",
-      weight: "900",
-      style: "normal",
-    },
-    {
-      path: "../features/fonts/Pangram-ExtraBold-800.woff",
-      weight: "800",
-      style: "normal",
-    },
-    {
-      path: "../features/fonts/Pangram-Bold-700.woff",
-      weight: "700",
-      style: "normal",
-    },
-    {
-      path: "../features/fonts/Pangram-Medium-500.woff",
-      weight: "500",
-      style: "normal",
-    },
-    {
-      path: "../features/fonts/Pangram-Regular-400.woff",
-      weight: "400",
-      style: "normal",
-    },
-    {
-      path: "../features/fonts/Pangram-Light-300.woff",
-      weight: "300",
-      style: "normal",
-    },
-    {
-      path: "../features/fonts/Pangram-ExtraLight-200.woff",
-      weight: "200",
-      style: "normal",
-    },
-  ],
-});
 
 export default function Home() {
   return (

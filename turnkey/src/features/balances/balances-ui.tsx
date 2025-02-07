@@ -163,7 +163,7 @@ const TabTrigger = (
     isLoading: boolean;
   }
 ) => {
-  const { title, fiatBalance, address, ...rest } = props;
+  const { title, fiatBalance, address, isLoading, ...rest } = props;
 
   return (
     <Tabs.Trigger

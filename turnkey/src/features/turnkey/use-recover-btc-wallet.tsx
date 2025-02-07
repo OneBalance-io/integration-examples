@@ -4,13 +4,17 @@ import { useTurnkey } from "@turnkey/sdk-react";
 import { usePersistedBTCWallet } from "../onebalance-account/use-persisted-btc-wallet";
 import { toast } from "sonner";
 
-export const useRecoverBTCWallet = () => {
+export const useRecoverBTCWallet = ({
+  onSuccess,
+}: {
+  onSuccess?: () => void;
+}) => {
   const { turnkey } = useTurnkey();
   const {
     btc: [, setBTCWallet],
   } = usePersistedBTCWallet();
 
-  const { mutate: btcLogin, error: btcLoginError } = useMutation({
+  const { mutate: btcLogin, status } = useMutation({
     mutationFn: async ({ rootOrgId }: { rootOrgId: string }) => {
       return turnkey
         ?.passkeyClient()
@@ -37,6 +41,7 @@ export const useRecoverBTCWallet = () => {
           });
         });
     },
+    onSuccess,
     onError: (error) => {
       console.error(error);
 
@@ -54,6 +59,7 @@ export const useRecoverBTCWallet = () => {
   });
 
   return {
+    status,
     btcLogin,
   };
 };
