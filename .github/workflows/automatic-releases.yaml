@@ -12,6 +12,8 @@ jobs:
       default_bump: patch
       runner: ubuntu-latest
     secrets:
+      # Transitional fallback: delete envPat once releases are confirmed
+      # running via the GitHub App, then remove the CI_PAT_TOKEN secret.
       envPat: ${{ secrets.CI_PAT_TOKEN }}
       releaseAppId: ${{ secrets.RELEASE_BOT_APP_ID }}
       releaseAppPrivateKey: ${{ secrets.RELEASE_BOT_APP_PRIVATE_KEY }}
