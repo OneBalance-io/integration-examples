@@ -7,29 +7,13 @@ on:
 
 jobs:
   github-release:
-    name: Bump version
-    runs-on: ubuntu-latest
-    if: "!contains(github.event.head_commit.message, 'Initial commit')"
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.CI_PAT_TOKEN }}
-          ref: ${{ github.event.pull_request.head.sha }}
-          fetch-depth: '0'
-
-      - name: Bump version and push tag
-        uses: anothrNick/github-tag-action@v1
-        id: tag
-        env:
-          GITHUB_TOKEN: ${{ secrets.CI_PAT_TOKEN }}
-          WITH_V: true
-          DEFAULT_BUMP: patch
-
-      - name: Create Release
-        uses: softprops/action-gh-release@v1
-        with:
-          tag_name: ${{ steps.tag.outputs.new_tag }}
-          draft: false
-          prerelease: false
-          generate_release_notes: true
-          token: ${{ secrets.CI_PAT_TOKEN }}
+    uses: OneBalance-io/infra-iac/.github/workflows/reuse-auto-releases.yaml@main
+    with:
+      default_bump: patch
+      runner: ubuntu-latest
+    secrets:
+      # Transitional fallback: delete envPat once releases are confirmed
+      # running via the GitHub App, then remove the CI_PAT_TOKEN secret.
+      envPat: ${{ secrets.CI_PAT_TOKEN }}
+      releaseAppId: ${{ secrets.RELEASE_BOT_APP_ID }}
+      releaseAppPrivateKey: ${{ secrets.RELEASE_BOT_APP_PRIVATE_KEY }}
