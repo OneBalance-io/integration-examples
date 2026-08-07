@@ -23,13 +23,8 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Create latest tag
-        run: |
-          if [[ -n $DOCKER_TAG ]]; then
-            TAG_PREFIX="$DOCKER_TAG,"
-          fi
-          echo "DOCKER_TAG=$TAG_PREFIX$GCP_REPO:latest" >> $GITHUB_ENV
-
+      # onebalance is immutable (PLA-184); publish only the git-ref (version) tag,
+      # not the mutable :latest.
       - name: Create docker tag for ${GITHUB_REF#refs/*/}
         run: |
           if [[ -n $DOCKER_TAG ]]; then
